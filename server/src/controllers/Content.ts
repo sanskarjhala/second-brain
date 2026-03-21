@@ -41,10 +41,10 @@ export const getContent = async (req: Request, res: Response) => {
 
 export const deleteContent = async (req: Request, res: Response) => {
   try {
-    const { contentId } = req.params;
+    const { id } = req.params;
 
     await ContentModel.deleteMany({
-      _id: contentId,
+      _id: id,
     });
     return res.status(200).json({
       message: "Content Deleted",
