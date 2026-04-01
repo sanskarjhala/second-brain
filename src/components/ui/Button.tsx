@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 interface ButtonProps {
   variant: "primary" | "secondary";
-  text: string;
+  text?: string;
   starticon?: ReactElement;
 }
 
@@ -16,8 +16,8 @@ const defaultStyles = "px-4 py-2 rounded-md  font-normal flex items-center";
 export const Button = ({ variant, starticon, text }: ButtonProps) => {
   return (
     <button className={variantClasses[variant] + " " + defaultStyles}>
-      <span className="px-2"> {starticon}</span>
-      {text}
+      <span className={`${starticon && "px-2"}`}> {starticon}</span>
+      <span> {text}</span>
     </button>
   );
 };

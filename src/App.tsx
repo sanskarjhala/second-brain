@@ -1,27 +1,17 @@
 import { Route, Routes } from "react-router-dom";
 import { HomeLayout } from "./layout/HomeLayout";
-import { DashboardLayout } from "./layout/DashboardLayout";
-import { Notes } from "./pages/Notes";
+import DashboardLayout from "./layout/DashboardLayout";
+import { CardGrid } from "./components/core/CardGrid";
 
 function App() {
   return (
-    <div>
+    <Routes>
+      <Route element={<HomeLayout />} />
 
-      <Routes>
-
-        <Route element={<HomeLayout/>}>
-          <Route/>
-          <Route/>
-          <Route/>
-          <Route/>
-        </Route>
-
-        <Route element={<DashboardLayout/>}>
-            <Route path="/dashboard/all-notes" element={<Notes/>}/>
-        </Route>  
-
-      </Routes>
-    </div>
+      <Route element={<DashboardLayout />}>
+        <Route path="/dashboard/all-notes" element={<CardGrid />} />
+      </Route>
+    </Routes>
   );
 }
 
