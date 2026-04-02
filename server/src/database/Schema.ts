@@ -12,14 +12,35 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true },
 });
 
-const ContentTypes = ["image", "youtube", "article", "audio" , "twitter" , "docs"]; // extending as per needs
+const ContentTypes = [
+  "image",
+  "youtube",
+  "article",
+  "audio",
+  "twitter",
+  "docs",
+]; // extending as per needs
+
+// const contentSchema = new Schema({
+//   title: { type: String, required: true },
+//   link: { type: String, required: true },
+//   type: { type: String, enum: ContentTypes, required: true },
+//   content: { type: String},
+//   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+// });
 
 const contentSchema = new Schema({
   title: { type: String, required: true },
   link: { type: String, required: true },
   type: { type: String, enum: ContentTypes, required: true },
-  content: { type: String},
+  content: { type: String },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  status: {
+    type: String,
+    enum: ["processing", "ready", "failed"],
+    default: "processing",
+  },
+  chromaSource: { type: String },
 });
 
 const tagSchema = new Schema({

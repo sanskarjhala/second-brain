@@ -8,7 +8,7 @@ export const SideBar = () => {
 
   return (
     <div
-      className={`transition-all duration-300 ${collapsed ? "w-12" : "w-[150px]"}`}
+      className={`transition-all duration-300 ${collapsed ? "w-12" : "w-37.5"}`}
     >
       <div className="sticky top-4 h-[calc(100vh-32px-48px)] flex flex-col">
         {/* Header */}
