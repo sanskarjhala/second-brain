@@ -1,10 +1,10 @@
-# 🧠 AI Resume Analyzer + Second Brain System
+# AI Resume Analyzer + Second Brain System
 
 An intelligent system that analyzes resumes against job descriptions using LLMs and vector embeddings, while also acting as a personal knowledge engine for storing and querying content.
 
 ---
 
-## 🚀 Overview
+## Overview
 
 This project combines:
 
@@ -21,7 +21,7 @@ Instead of just giving an ATS score, the system explains:
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
                 ┌──────────────────────┐
@@ -62,9 +62,9 @@ Instead of just giving an ATS score, the system explains:
 
 ---
 
-## 🧩 Core Features
+## Core Features
 
-### 📄 Resume Analyzer
+### Resume Analyzer
 
 * Extracts structured sections:
 
@@ -82,7 +82,7 @@ Instead of just giving an ATS score, the system explains:
 
 ---
 
-### 🧠 Second Brain (Content Intelligence)
+### Second Brain (Content Intelligence)
 
 * Store:
 
@@ -95,7 +95,7 @@ Instead of just giving an ATS score, the system explains:
 
 ---
 
-### 🗄️ Dual Database System
+### Dual Database System
 
 | System    | Purpose                               |
 | --------- | ------------------------------------- |
@@ -104,7 +104,7 @@ Instead of just giving an ATS score, the system explains:
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 * **Backend:** Node.js, Express
 * **Language:** TypeScript
@@ -119,7 +119,7 @@ Instead of just giving an ATS score, the system explains:
 
 ---
 
-## 🔑 Key Concepts Implemented
+## Key Concepts Implemented
 
 ### 1. Metadata-Aware Chunking
 
@@ -163,7 +163,7 @@ LLM explains **why it matters**.
 
 ---
 
-## 🔄 Workflow
+## Workflow
 
 ### Resume Analysis Flow
 
@@ -187,7 +187,7 @@ LLM Report Generation
 
 ---
 
-## 📡 API Example
+## API Example
 
 ### POST `/api/resume/analyze`
 
@@ -216,17 +216,17 @@ LLM Report Generation
 
 ---
 
-## 🎯 What Makes This Project Unique
+## What Makes This Project Unique
 
-* ✅ Explainable ATS (not just scoring)
-* ✅ Line-by-line resume feedback
-* ✅ Multi-user vector database design
-* ✅ Combines Resume + Knowledge Engine
-* ✅ Scalable architecture (production-ready)
+* Explainable ATS (not just scoring)
+* Line-by-line resume feedback
+* Multi-user vector database design
+* Combines Resume + Knowledge Engine
+* Scalable architecture (production-ready)
 
 ---
 
-## 🚀 Future Improvements
+## Future Improvements
 
 * Resume auto-rewriting (AI suggestions applied directly)
 * Multi-resume comparison (HR ranking system)
@@ -235,12 +235,12 @@ LLM Report Generation
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Built as part of a larger **AI Second Brain system**, focusing on real-world LLM applications and scalable architecture.
 
 ---
 
-## ⭐ If You Like This Project
+## If You Like This Project
 
 Give it a star ⭐ and feel free to connect!
