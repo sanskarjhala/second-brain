@@ -1,5 +1,7 @@
 import { Card } from "../ui/Card";
 
+type ContentType = "youtube" | "twitter";
+
 const DUMMY_CARDS = [
   {
     id: 1,
@@ -39,17 +41,29 @@ const DUMMY_CARDS = [
   },
 ];
 
-export const CardGrid = () => {
+interface CardGridProps {
+  filter?: ContentType;
+}
+
+export const CardGrid = ({ filter }: CardGridProps) => {
+  const cards = filter
+    ? DUMMY_CARDS.filter((c) => c.type === filter)
+    : DUMMY_CARDS;
+
   return (
     <div className="flex flex-wrap justify-center">
-      {DUMMY_CARDS.map((card) => (
-        <Card
-          key={card.id}
-          title={card.title}
-          link={card.link}
-          type={card.type}
-        />
-      ))}
+      {cards.length === 0 ? (
+        <p className="text-gray-500 mt-10">No content found.</p>
+      ) : (
+        cards.map((card) => (
+          <Card
+            key={card.id}
+            title={card.title}
+            link={card.link}
+            type={card.type}
+          />
+        ))
+      )}
     </div>
   );
 };
