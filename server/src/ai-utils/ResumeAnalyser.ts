@@ -1,5 +1,6 @@
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { AIMessage } from "@langchain/core/messages";
 import z from "zod";
 import { getVectorDb, model, upsertDocs } from "./client";
 
@@ -23,34 +24,48 @@ class ResumeComponent {
   };
 
   public ExtractSections = async (resumeText: string) => {
-    const promt = `
-    Extract these sections from the resume:
+    const prompt = `
+  Extract these sections from the resume:
 
-    - skills (array)
-    - experience
-    - projects
-    - education
+  - skills (array)
+  - experience
+  - projects
+  - education
 
-    If missing, return empty.
+  If missing, return empty.
 
-    Resume:
-    ${resumeText}
-    `;
+  Resume:
+  ${resumeText}
+  `;
 
     try {
-      const result = await this.llm2.invoke(promt);
-      console.log(result);
+      const result = await this.llm2.invoke(prompt);
       return result;
     } catch (error: any) {
       console.log(error.message);
+      return {
+        skills: [],
+        experience: "",
+        projects: "",
+        education: "",
+        summary: "",
+      };
     }
   };
 
-  public similaritySearch = async (vectorDB: any, jdChunks: string[]) => {
+  public similaritySearch = async (
+    vectorDB: any,
+    jdChunks: string[],
+    userId: any,
+    source: string,
+  ) => {
     const matches: any[] = [];
 
     for (const chunk of jdChunks) {
-      const results = await vectorDB.similaritySearch(chunk, 3);
+      const results = await vectorDB.similaritySearch(chunk, 3, {
+        source,
+        userId,
+      });
 
       matches.push({
         jdChunk: chunk,
@@ -63,27 +78,24 @@ class ResumeComponent {
 
   public async generateReport(matches: any, jd: string) {
     const prompt = `
-        You are an ATS system.
+      You are an advanced ATS system.
 
-        Given:
-        1. Job Description
-        2. Resume matches from vector search
+      Return JSON:
 
-        Analyze and return:
+      {
+        "score": number,
+        "missing_skills": [],
+        "strong_matches": [],
+        "weak_areas": [],
+        "suggestions": []
+      }
 
-        - Missing skills
-        - Weak areas
-        - Strong matches
-        - Final ATS score (0-100)
-        - Suggestions to improve resume
+      DATA:
+      ${JSON.stringify(matches, null, 2)}
 
-        DATA:
-        ${JSON.stringify(matches, null, 2)}
-
-        JOB DESCRIPTION:
-        ${jd}
-        `;
-
+      JOB DESCRIPTION:
+      ${jd}
+      `;
     const response = await this.llm.invoke(prompt);
     return response;
   }
@@ -130,11 +142,11 @@ export class ResumePipeline {
   private chunking = new Chunking();
   private resumeComponent = new ResumeComponent();
 
-  public run = async (
+  public main = async (
     filePath: string,
     jobDescription: string,
     userId: any,
-  ) => {
+  ): Promise<AIMessage> => {
     const resumeText = await this.resumeComponent.documentLoader(filePath);
     const sections = await this.resumeComponent.ExtractSections(resumeText);
     const source = `resume-${userId}`;
@@ -145,6 +157,8 @@ export class ResumePipeline {
     const matches = await this.resumeComponent.similaritySearch(
       vectorDb,
       jdChunks,
+      source,
+      userId,
     );
     const report = await this.resumeComponent.generateReport(
       matches,
