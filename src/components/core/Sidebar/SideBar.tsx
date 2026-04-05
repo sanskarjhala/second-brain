@@ -5,6 +5,7 @@ import { SideBarItems } from "./SideBarItems";
 import image from "../../../icons/brain.svg";
 
 const NAV_ITEMS = [
+  { title: "All Notes", icon: <TwitterIcon />, path: "/dashboard" },
   { title: "Youtube", icon: <TwitterIcon />, path: "/dashboard/youtube" },
   { title: "Twitter", icon: <TwitterIcon />, path: "/dashboard/twitter" },
   { title: "Resume", icon: <TwitterIcon />, path: "/dashboard/resume" },
@@ -15,14 +16,18 @@ export const SideBar = () => {
   const location = useLocation();
 
   return (
-    <div className={`transition-all duration-300 ${collapsed ? "w-12" : "w-37.5"}`}>
+    <div
+      className={`transition-all duration-300 ${collapsed ? "w-12" : "w-37.5"}`}
+    >
       <div className="sticky top-4 h-[calc(100vh-32px-48px)] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between gap-2 border-b border-gray-200 py-4">
           {!collapsed ? (
             <div className="flex items-center gap-2">
               <img src={image} alt="" height={30} width={30} />
-              <h1 className="text-md font-semibold whitespace-nowrap">Second Brain</h1>
+              <h1 className="text-md font-semibold whitespace-nowrap">
+                Second Brain
+              </h1>
             </div>
           ) : (
             <div className="mx-auto">

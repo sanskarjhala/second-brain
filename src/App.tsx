@@ -7,15 +7,24 @@ import { Login } from "./pages/LoginPage";
 import YoutubePage from "./pages/YoutubePage";
 import TwitterPage from "./pages/TwitterPage";
 import ResumePage from "./pages/ResumePage";
+import LandingPage from "./pages/Home";
+import { SupportPage } from "./pages/SupportPage";
 
 function App() {
   return (
-    <div className="bg-richblack-900 w-screen h-screen">
+    <div className="w-screen h-screen overflow-x-hidden dark:bg-black">
       <Routes>
-        <Route element={<HomeLayout />} />
+        <Route  element={<HomeLayout />}>
+          <Route index element={<LandingPage />} />
+          <Route path="login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/support" element={<SupportPage/>} />
+          {/* <Route path="/about" element={<About />} /> */}
+          {/* <Route path="/contact" element={<Contact />} /> */}
+        </Route>
 
-        <Route path="login" element={<Login />} />
-        <Route path="sign-up" element={<Signup />} />
+        
+        
 
         <Route path={"/dashboard"} element={<DashboardLayout />}>
           <Route index element={<CardGrid />} />
