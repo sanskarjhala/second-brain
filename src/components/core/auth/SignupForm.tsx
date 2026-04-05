@@ -49,7 +49,7 @@ function SignupForm() {
         {/* First & Last Name */}
         <div className="flex gap-x-4">
           <label className="w-full">
-            <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+            <p className="mb-1 text-[0.875rem] leading-[1.375rem] ">
               First Name <sup className="text-pink-200">*</sup>
             </p>
             <input
@@ -63,7 +63,7 @@ function SignupForm() {
             />
           </label>
           <label className="w-full">
-            <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+            <p className="mb-1 text-[0.875rem] leading-[1.375rem] ">
               Last Name <sup className="text-pink-200">*</sup>
             </p>
             <input
@@ -80,7 +80,7 @@ function SignupForm() {
 
         {/* Email */}
         <label className="w-full">
-          <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+          <p className="mb-1 text-[0.875rem] leading-[1.375rem] ">
             Email Address <sup className="text-pink-200">*</sup>
           </p>
           <input
@@ -98,7 +98,7 @@ function SignupForm() {
         <div className="flex gap-x-4">
           {/* Create Password */}
           <label className="relative w-full">
-            <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+            <p className="mb-1 text-[0.875rem] leading-[1.375rem] ">
               Create Password <sup className="text-pink-200">*</sup>
             </p>
             <input
@@ -124,7 +124,7 @@ function SignupForm() {
 
           {/* Confirm Password */}
           <label className="relative w-full">
-            <p className="mb-1 text-[0.875rem] leading-[1.375rem] text-richblack-5">
+            <p className="mb-1 text-[0.875rem] leading-[1.375rem] ">
               Confirm Password <sup className="text-pink-200">*</sup>
             </p>
             <input
@@ -151,7 +151,7 @@ function SignupForm() {
 
         <button
           type="submit"
-          className="mt-6 w-full rounded-lg bg-yellow-50 py-3 px-4 font-semibold text-richblack-900 hover:bg-yellow-25 transition-colors duration-200"
+          className="mt-6 w-full rounded-lg bg-yellow-50 py-3 px-4 font-semibold  hover:bg-yellow-25 transition-colors duration-200"
         >
           Create Account
         </button>

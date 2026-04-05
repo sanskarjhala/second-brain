@@ -2,14 +2,14 @@
 import brain2icon from "../../../assets/brain2icon.png";
 export function Footer() {
   return (
-    <footer className="bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700 py-10 px-6">
+    <footer className="bg-gray-50 text-black dark:bg-black border-t border-gray-200 dark:border-gray-700 py-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
           <h3 className="text-2xl flex font-bold text-gray-900 dark:text-white">
             <img src={brain2icon} alt="logo" className="h-16 -mt-4" />
             Second Brain
           </h3>
-          <p className="mt-3 text-md text-gray-600 dark:text-gray-400">
+          <p className="mt-3 text-md  dark:text-gray-400">
             Second Brain doesn’t just store your knowledge — it thinks with you.
             Our AI understands context, connects ideas, and find ideas by
             meaning, not just keywords.
@@ -17,10 +17,10 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+          <h4 className="text-lg font-semibold  dark:text-gray-200 mb-4">
             Quick Links
           </h4>
-          <ul className="space-y-2 text-md text-gray-500 ">
+          <ul className="space-y-2 text-md  ">
             <li>
               <a href="/about" className="hover:text-indigo-500">
                 About
@@ -40,10 +40,10 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+          <h4 className="text-lg font-semibold  dark:text-gray-200 mb-4">
             Support Me
           </h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-sm  dark:text-gray-400 mb-4">
             If you love this project, consider supporting me 💜
           </p>
 
@@ -74,7 +74,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div className="mt-10 text-center text-sm  dark:text-gray-400">
         © {new Date().getFullYear()} Second Brain. Built with ❤️ by Sanskar
         Jhala.
       </div>

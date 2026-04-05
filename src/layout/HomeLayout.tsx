@@ -6,7 +6,7 @@ export const HomeLayout = () => {
   return (
     <div className="overflow-hidden">
       <Navbar />
-      <main>
+      <main className="pt-16">
         <Outlet />
       </main>
       <Footer />

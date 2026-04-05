@@ -2,6 +2,7 @@ import brain2icon from "../../../assets/brain2icon.png";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../../context/ThemeContext";
 import { Sun, Moon } from "lucide-react";
+import { CtaButton } from "../../ui/CtaButton";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -48,6 +49,8 @@ export const Navbar = () => {
             >
               Contact
             </a>
+
+            <CtaButton/>
 
             {/* Dark / Light Toggle */}
             <button

@@ -7,7 +7,7 @@ function Template({ title, description1, description2, image, formType }: any) {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] bg-richblack-900 flex items-center justify-center">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-white text-black dark:text-white dark:bg-black flex items-center justify-center">
       {loading ? (
         <div className="spinner"></div>
       ) : (
@@ -15,20 +15,20 @@ function Template({ title, description1, description2, image, formType }: any) {
           
           {/* Left: Form Section */}
           <div className="w-full max-w-[450px]">
-            <h1 className="text-[1.875rem] font-semibold leading-[2.375rem] text-richblack-5">
+            <h1 className="text-[1.875rem] font-semibold leading-[2.375rem]">
               {title}
             </h1>
-            <p className="mt-4 text-[1.125rem] leading-[1.625rem]">
+            {/* <p className="mt-4 text-[1.125rem] leading-[1.625rem]">
               <span className="text-richblack-100">{description1}</span>{" "}
               <span className="font-edu-sa font-bold italic text-blue-100">
                 {description2}
               </span>
-            </p>
+            </p> */}
             {formType === "signup" ? <SignupForm /> : <LoginForm />}
           </div>
 
           {/* Right: Image Section */}
-          <div className="relative w-full max-w-[450px] flex items-center justify-center">
+          <div className="relative w-full max-w-112.5 flex items-center justify-center">
             <img
               src={frameImg}
               alt="Pattern"
