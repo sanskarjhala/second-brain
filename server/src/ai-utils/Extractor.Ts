@@ -5,9 +5,15 @@ import { JSDOM } from "jsdom";
 import { URL } from "node:url";
 import { fetchTranscript } from "youtube-transcript-plus";
 import YouTubeVideoId from "youtube-video-id";
+import { Chunking } from "./ResumeAnalyser";
+import { upsertDocs } from "./client";
 
-interface type {
-  type: "youtube" | "article" | "pdf";
+interface ExtractedContent {
+  title?: string | null;
+  content: string | null | undefined;
+  shortSummary?: string | null;
+  type: "youtube" | "article";
+  source: string;
 }
 
 class ArticleExtractor {
@@ -16,7 +22,7 @@ class ArticleExtractor {
     return $.text().trim();
   }
 
-  extract = async (url: string) => {
+  extract = async (url: string): Promise<ExtractedContent> => {
     const response = await axios.get(url, {
       headers: {
         "User-Agent":
@@ -28,71 +34,78 @@ class ArticleExtractor {
     const reader = new Readability(dom.window.document);
     const article = reader.parse();
 
-    //@ts-ignore
+    if (!article) throw new Error("Failed to parse article");
+    // @ts-ignore
     const text = this.removeHtmlTags(article.content);
     return {
-      title: article?.title,
+      title: article.title,
       content: text,
-      shortSummary: article?.excerpt,
+      shortSummary: article.excerpt,
       type: "article",
+      source: `article-${encodeURIComponent(url)}`,
     };
   };
 }
 
 class YoutubeExtractor {
   private getVideoId = (url: string): string => {
-    return YouTubeVideoId(url);
+    const id = YouTubeVideoId(url);
+    if (!id) throw new Error(`Could not extract video ID from: ${url}`);
+    return id;
   };
 
   private getTranscript = async (id: string): Promise<string> => {
-    try {
-      const transcriptChunks = await fetchTranscript(id);
-
-      //converting them into single string
-      const fullTranscript = transcriptChunks
-        .map((chunk) => chunk.text)
-        .join(" ");
-
-      return fullTranscript;
-    } catch (error: any) {
-      throw new error("failed to get Transcript");
-    }
+    const transcriptChunks = await fetchTranscript(id);
+    return transcriptChunks.map((chunk) => chunk.text).join(" ");
   };
 
-  extractTranscript = async (url: string): Promise<string> => {
+  extractTranscript = async (url: string): Promise<ExtractedContent> => {
     const videoId = this.getVideoId(url);
+    const transcript = await this.getTranscript(videoId);
 
-    try {
-      const data = await this.getTranscript(videoId);
-      return data;
-    } catch (error: any) {
-      throw new error("Yoiutube transcupt error");
-    }
+    return {
+      title: `YouTube video: ${videoId}`,
+      content: transcript,
+      type: "youtube",
+      source: `youtube-${videoId}`,
+    };
   };
 }
 
-export class Extractor {
-  private ArticleExtractor = new ArticleExtractor();
-  private YoutubeExtractor = new YoutubeExtractor();
+export class ExtractorPipeline {
+  private articleExtractor = new ArticleExtractor();
+  private youtubeExtractor = new YoutubeExtractor();
+  private chunker = new Chunking();
 
-  //detect the type
-  private detectType = (url: string) => {
+  private detectType(url: string): "youtube" | "article" {
     const hostname = new URL(url).hostname;
-
     if (hostname.includes("youtube.com") || hostname.includes("youtu.be")) {
       return "youtube";
     }
     return "article";
-  };
+  }
 
-  extract = async (url: string) => {
+  private async extractContent(url: string): Promise<ExtractedContent> {
     const type = this.detectType(url);
-
     switch (type) {
       case "youtube":
-        return this.YoutubeExtractor.extractTranscript(url);
+        return this.youtubeExtractor.extractTranscript(url);
       case "article":
-        return this.ArticleExtractor.extract(url);
+        return this.articleExtractor.extract(url);
     }
-  };
+  }
+
+  async ingest(url: string): Promise<{ source: string; title?: string }> {
+    const extracted = await this.extractContent(url);
+
+    const docs = await this.chunker.createChunks(
+      { content: extracted.content },
+      extracted.source,
+      extracted.source,
+    );
+
+    await upsertDocs(docs);
+    // @ts-ignore
+    return { source: extracted.source, title: extracted.title };
+  }
 }

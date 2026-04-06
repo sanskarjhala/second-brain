@@ -19,28 +19,24 @@ class ResumeComponent {
   public documentLoader = async (filePath: string) => {
     const loader = new PDFLoader(filePath);
     const docs = await loader.load();
-    const text = docs.map((doc) => doc.pageContent).join("\n");
-    return text;
+    return docs.map((doc) => doc.pageContent).join("\n");
   };
 
-  public ExtractSections = async (resumeText: string) => {
+  public extractSections = async (resumeText: string) => {
     const prompt = `
-  Extract these sections from the resume:
+Extract these sections from the resume:
+- skills (array)
+- experience
+- projects
+- education
 
-  - skills (array)
-  - experience
-  - projects
-  - education
+If missing, return empty.
 
-  If missing, return empty.
-
-  Resume:
-  ${resumeText}
-  `;
-
+Resume:
+${resumeText}
+    `;
     try {
-      const result = await this.llm2.invoke(prompt);
-      return result;
+      return await this.llm2.invoke(prompt);
     } catch (error: any) {
       console.log(error.message);
       return {
@@ -60,49 +56,43 @@ class ResumeComponent {
     source: string,
   ) => {
     const matches: any[] = [];
-
     for (const chunk of jdChunks) {
       const results = await vectorDB.similaritySearch(chunk, 3, {
         source,
         userId,
       });
-
-      matches.push({
-        jdChunk: chunk,
-        results,
-      });
+      matches.push({ jdChunk: chunk, results });
     }
-
     return matches;
   };
 
-  public async generateReport(matches: any, jd: string) {
+  public generateReport = async (
+    matches: any,
+    jd: string,
+  ): Promise<AIMessage> => {
     const prompt = `
-      You are an advanced ATS system.
+You are an advanced ATS system.
 
-      Return JSON:
+Return JSON:
+{
+  "score": number,
+  "missing_skills": [],
+  "strong_matches": [],
+  "weak_areas": [],
+  "suggestions": []
+}
 
-      {
-        "score": number,
-        "missing_skills": [],
-        "strong_matches": [],
-        "weak_areas": [],
-        "suggestions": []
-      }
+DATA:
+${JSON.stringify(matches, null, 2)}
 
-      DATA:
-      ${JSON.stringify(matches, null, 2)}
-
-      JOB DESCRIPTION:
-      ${jd}
-      `;
-    const response = await this.llm.invoke(prompt);
-    return response;
-  }
+JOB DESCRIPTION:
+${jd}
+    `;
+    return this.llm.invoke(prompt);
+  };
 }
 
 export class Chunking {
-  // Import spillter
   private splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 80,
     chunkOverlap: 10,
@@ -114,22 +104,17 @@ export class Chunking {
     userId: string,
   ) => {
     const docs: any[] = [];
-
     for (const [section, content] of Object.entries(sections)) {
       if (!content) continue;
-
       const text = Array.isArray(content) ? content.join(", ") : content;
-
       const chunks = await this.splitter.splitText(text as string);
-
       chunks.forEach((chunk) => {
         docs.push({
           pageContent: chunk,
-          metadata: { section: section, source: source, userId },
+          metadata: { section, source, userId },
         });
       });
     }
-
     return docs;
   };
 
@@ -142,16 +127,30 @@ export class ResumePipeline {
   private chunking = new Chunking();
   private resumeComponent = new ResumeComponent();
 
+  public ingest = async (
+    filePath: string,
+    userId: string,
+  ): Promise<{ source: string; title: string }> => {
+    const source = `resume-${userId}`;
+
+    const resumeText = await this.resumeComponent.documentLoader(filePath);
+    const sections = await this.resumeComponent.extractSections(resumeText);
+    const docs = await this.chunking.createChunks(sections, source, userId);
+    await upsertDocs(docs);
+
+    return { source, title: `Resume - ${userId}` };
+  };
+
+  /**
+   * Full ATS analysis: ingest + JD matching + report.
+   */
   public main = async (
     filePath: string,
     jobDescription: string,
-    userId: any,
+    userId: string,
   ): Promise<AIMessage> => {
-    const resumeText = await this.resumeComponent.documentLoader(filePath);
-    const sections = await this.resumeComponent.ExtractSections(resumeText);
-    const source = `resume-${userId}`;
-    const docs = await this.chunking.createChunks(sections, source, userId);
-    await upsertDocs(docs);
+    const { source } = await this.ingest(filePath, userId);
+
     const vectorDb = await getVectorDb(source);
     const jdChunks = await this.chunking.processJd(jobDescription);
     const matches = await this.resumeComponent.similaritySearch(
@@ -160,10 +159,7 @@ export class ResumePipeline {
       source,
       userId,
     );
-    const report = await this.resumeComponent.generateReport(
-      matches,
-      jobDescription,
-    );
-    return report;
+
+    return this.resumeComponent.generateReport(matches, jobDescription);
   };
 }
