@@ -9,24 +9,44 @@ import TwitterPage from "./pages/TwitterPage";
 import ResumePage from "./pages/ResumePage";
 import LandingPage from "./pages/Home";
 import { SupportPage } from "./pages/SupportPage";
+import { OpenRoute } from "./components/core/auth/OpenRoute";
+import { PrivateRoute } from "./components/core/auth/PrivateRoute";
 
 function App() {
   return (
     <div className="w-screen h-screen overflow-x-hidden dark:bg-black">
       <Routes>
-        <Route  element={<HomeLayout />}>
+        <Route element={<HomeLayout />}>
           <Route index element={<LandingPage />} />
-          <Route path="login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/support" element={<SupportPage/>} />
+          <Route
+            path="login"
+            element={
+              <OpenRoute>
+                <Login />
+              </OpenRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <OpenRoute>
+                <Signup />
+              </OpenRoute>
+            }
+          />
+          <Route path="/support" element={<SupportPage />} />
           {/* <Route path="/about" element={<About />} /> */}
           {/* <Route path="/contact" element={<Contact />} /> */}
         </Route>
 
-        
-        
-
-        <Route path={"/dashboard"} element={<DashboardLayout />}>
+        <Route
+          path={"/dashboard"}
+          element={
+            <PrivateRoute>
+              <DashboardLayout />
+            </PrivateRoute>
+          }
+        >
           <Route index element={<CardGrid />} />
           <Route path={"youtube"} element={<YoutubePage />} />
           <Route path={"twitter"} element={<TwitterPage />} />
