@@ -13,13 +13,16 @@ export const chatHandler = async (req: Request, res: Response) => {
     history: { role: "user" | "assistant"; content: string }[];
   };
 
+  const userId = req.userId;
+
   if (!question || !source) {
     return res.status(400).json({ error: "question and source are required" });
   }
 
   try {
     // Get a VectorDB view scoped to this content's source key
-    const vectorDb = await getVectorDb(source);
+    // @ts-ignore
+    const vectorDb = await getVectorDb(source ,userId);
 
     // Retrieve top-5 most relevant chunks for the question
     const results = await vectorDb.similaritySearch(question, 5);

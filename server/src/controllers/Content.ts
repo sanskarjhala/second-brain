@@ -23,15 +23,19 @@ export const createContent = async (req: Request, res: Response) => {
       status: "processing",
     });
 
-    ingestInBackground(content._id.toString(), link);
+    ingestInBackground(content._id.toString(), link, userId as string);
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-const ingestInBackground = async (contentId: string, link: string) => {
+const ingestInBackground = async (
+  contentId: string,
+  link: string,
+  userId: string,
+) => {
   try {
-    const { source } = await pipeline.ingest(link);
+    const { source } = await pipeline.ingest(link, userId);
 
     await ContentModel.findByIdAndUpdate(contentId, {
       status: "ready",

@@ -3,7 +3,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { JSDOM } from "jsdom";
 import { URL } from "node:url";
-import { fetchTranscript } from "youtube-transcript-plus";
+import { YoutubeTranscript } from "youtube-transcript";
 import YouTubeVideoId from "youtube-video-id";
 import { Chunking } from "./ResumeAnalyser";
 import { upsertDocs } from "./client";
@@ -55,12 +55,19 @@ class YoutubeExtractor {
   };
 
   private getTranscript = async (id: string): Promise<string> => {
-    const transcriptChunks = await fetchTranscript(id);
-    return transcriptChunks.map((chunk) => chunk.text).join(" ");
+    try {
+      const data = await YoutubeTranscript.fetchTranscript(id);
+      const trans = data.map((item) => item.text).join(" ");
+      return trans;
+    } catch (err: any) {
+      console.error("Transcript failed:", err.message);
+      throw err;
+    }
   };
 
   extractTranscript = async (url: string): Promise<ExtractedContent> => {
     const videoId = this.getVideoId(url);
+
     const transcript = await this.getTranscript(videoId);
 
     return {
@@ -95,15 +102,18 @@ export class ExtractorPipeline {
     }
   }
 
-  async ingest(url: string): Promise<{ source: string; title?: string }> {
+  async ingest(
+    url: string,
+    userId: string,
+  ): Promise<{ source: string; title?: string }> {
     const extracted = await this.extractContent(url);
 
     const docs = await this.chunker.createChunks(
       { content: extracted.content },
       extracted.source,
-      extracted.source,
+      userId,
     );
-
+    // console.log(docs)
     await upsertDocs(docs);
     // @ts-ignore
     return { source: extracted.source, title: extracted.title };

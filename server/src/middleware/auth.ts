@@ -20,7 +20,9 @@ export const UserMiddleware = async (
       });
       return;
     }
-    req.userId = (decoded as JwtPayload).id;
+
+    req.userId = (decoded as JwtPayload).userId;
+
     next();
   } else {
     res.status(403).json({

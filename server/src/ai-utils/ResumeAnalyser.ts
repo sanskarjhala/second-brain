@@ -151,7 +151,7 @@ export class ResumePipeline {
   ): Promise<AIMessage> => {
     const { source } = await this.ingest(filePath, userId);
 
-    const vectorDb = await getVectorDb(source);
+    const vectorDb = await getVectorDb(source , userId);
     const jdChunks = await this.chunking.processJd(jobDescription);
     const matches = await this.resumeComponent.similaritySearch(
       vectorDb,

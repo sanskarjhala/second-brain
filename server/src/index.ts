@@ -13,8 +13,8 @@ app.use(cors());
 
 db_connection();
 
-app.use("/" , contentRoutes);
-app.use("/" , userRoutes);
+app.use("/api/content", contentRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is runnnin at port ${process.env.PORT}`);
