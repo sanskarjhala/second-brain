@@ -51,7 +51,7 @@ function Input({
         className="px-2 py-2 border-2 rounded-md border-amber-300"
         type="text"
         //@ts-ignore
-        onChange={onchange}
+        onChange={onChange}
         placeholder={placeholder}
       />
     </div>

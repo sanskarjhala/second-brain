@@ -36,7 +36,7 @@ const ChatIcon = () => (
 // ── Chat Drawer ────────────────────────────────────────────────────────────
 interface ChatDrawerProps {
   title: string;
-  link: string;
+  link?: string;
   source: string;
   onClose: () => void;
 }
@@ -45,8 +45,8 @@ interface Message {
   role: "user" | "assistant";
   content: string;
 }
-
-const ChatDrawer = ({ title, link, source, onClose }: ChatDrawerProps) => {
+// I have removed link from here and have to cheack after deployment 
+const ChatDrawer = ({ title, source, onClose }: ChatDrawerProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",

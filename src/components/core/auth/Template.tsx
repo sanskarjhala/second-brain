@@ -3,7 +3,8 @@ import frameImg from "../../../assets/Images/frame.png";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 
-function Template({ title, description1, description2, image, formType }: any) {
+function Template({ title, image, formType }: any) {
+  // @ts-ignore
   const [loading, setLoading] = useState(false);
 
   return (

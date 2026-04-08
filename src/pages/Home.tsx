@@ -7,6 +7,7 @@ import { ThreeDots } from "react-loader-spinner";
 import LandingSection from "../components/ui/Landing";
 
 export default function LandingPage() {
+  // @ts-ignore
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
 
