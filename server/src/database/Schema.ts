@@ -29,18 +29,51 @@ const ContentTypes = [
 //   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 // });
 
-const contentSchema = new Schema({
-  title: { type: String, required: true },
-  link: { type: String, required: true },
-  type: { type: String, enum: ContentTypes, required: true },
-  content: { type: String },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  status: {
-    type: String,
-    enum: ["processing", "ready", "failed"],
-    default: "processing",
+// const contentSchema = new Schema({
+//   title: { type: String, required: true },
+//   link: { type: String, required: true },
+//   type: { type: String, enum: ContentTypes, required: true },
+//   content: { type: String },
+//   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+//   status: {
+//     type: String,
+//     enum: ["processing", "ready", "failed"],
+//     default: "processing",
+//   },
+//   chromaSource: { type: String },
+// });
+
+const contentSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    link: { type: String, required: true },
+    type: { type: String, enum: ContentTypes, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    source: { type: String },
+    status: {
+      type: String,
+      enum: ["processing", "ready", "failed"],
+      default: "processing",
+    },
   },
-  chromaSource: { type: String },
+  { timestamps: true },
+);
+
+const chunkSchema = new Schema({
+  contentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Content",
+    required: true,
+  },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  source: { type: String, required: true },
+  content: { type: String, required: true },
+  embedding: { type: [Number], required: true },
+  chunkIndex: { type: Number, required: true },
 });
 
 const tagSchema = new Schema({
@@ -64,6 +97,7 @@ userSchema.post(
 );
 
 export const ContentModel = mongoose.model("Content", contentSchema);
+export const ChunkModel = mongoose.model("Chunk", chunkSchema);
 export const TagSchema = mongoose.model("Tag", tagSchema);
 export const UserModel = mongoose.model("User", userSchema);
 export const LinkModel = mongoose.model("Link", linkSchema);

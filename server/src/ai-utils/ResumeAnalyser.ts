@@ -2,7 +2,8 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { AIMessage } from "@langchain/core/messages";
 import z from "zod";
-import { getVectorDb, model, upsertDocs } from "./client";
+import { model, similaritySearch , upsertDocs } from "./client";
+import { ContentModel } from "../database/Schema";
 
 const ResumeSchema = z.object({
   skills: z.array(z.string()),
@@ -94,7 +95,7 @@ ${jd}
 
 export class Chunking {
   private splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 80,
+    chunkSize: 1000,
     chunkOverlap: 10,
   });
 
@@ -130,20 +131,35 @@ export class ResumePipeline {
   public ingest = async (
     filePath: string,
     userId: string,
-  ): Promise<{ source: string; title: string }> => {
+  ): Promise<{ source: string; title: string; contentId: string }> => {
     const source = `resume-${userId}`;
+    const title = `Resume - ${userId}`;
 
-    const resumeText = await this.resumeComponent.documentLoader(filePath);
-    const sections = await this.resumeComponent.extractSections(resumeText);
-    const docs = await this.chunking.createChunks(sections, source, userId);
-    await upsertDocs(docs);
+    const content = await ContentModel.create({
+      title,
+      link: filePath,
+      type: "resume",
+      userId,
+      status: "processing",
+      source,
+    });
 
-    return { source, title: `Resume - ${userId}` };
+    try {
+      const resumeText = await this.resumeComponent.documentLoader(filePath);
+      const sections = await this.resumeComponent.extractSections(resumeText);
+      const docs = await this.chunking.createChunks(sections, source, userId);
+
+      await upsertDocs(docs, content._id.toString());
+
+      await ContentModel.findByIdAndUpdate(content._id, { status: "ready" });
+    } catch (err) {
+      await ContentModel.findByIdAndUpdate(content._id, { status: "failed" });
+      throw err;
+    }
+
+    return { source, title, contentId: content._id.toString() };
   };
 
-  /**
-   * Full ATS analysis: ingest + JD matching + report.
-   */
   public main = async (
     filePath: string,
     jobDescription: string,
@@ -151,14 +167,13 @@ export class ResumePipeline {
   ): Promise<AIMessage> => {
     const { source } = await this.ingest(filePath, userId);
 
-    const vectorDb = await getVectorDb(source , userId);
     const jdChunks = await this.chunking.processJd(jobDescription);
-    const matches = await this.resumeComponent.similaritySearch(
-      vectorDb,
-      jdChunks,
-      source,
-      userId,
-    );
+
+    const matches: any[] = [];
+    for (const chunk of jdChunks) {
+      const results = await similaritySearch(chunk, userId, source);
+      matches.push({ jdChunk: chunk, results });
+    }
 
     return this.resumeComponent.generateReport(matches, jobDescription);
   };

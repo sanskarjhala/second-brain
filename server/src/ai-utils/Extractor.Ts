@@ -3,8 +3,6 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { JSDOM } from "jsdom";
 import { URL } from "node:url";
-import { YoutubeTranscript } from "youtube-transcript";
-import YouTubeVideoId from "youtube-video-id";
 import { Chunking } from "./ResumeAnalyser";
 import { upsertDocs } from "./client";
 
@@ -47,28 +45,74 @@ class ArticleExtractor {
   };
 }
 
-class YoutubeExtractor {
-  private getVideoId = (url: string): string => {
-    const id = YouTubeVideoId(url);
-    if (!id) throw new Error(`Could not extract video ID from: ${url}`);
-    return id;
-  };
+import { YoutubeTranscript } from "youtube-transcript";
+import YouTubeVideoId from "youtube-video-id";
+import ytdlp from "yt-dlp-exec";
+import fs from "fs/promises";
 
-  private getTranscript = async (id: string): Promise<string> => {
+class YoutubeExtractor {
+  private getVideoId(url: string): string {
+    const id = YouTubeVideoId(url);
+    if (!id) {
+      throw new Error(`Invalid YouTube URL: ${url}`);
+    }
+    return id;
+  }
+
+  private async getTranscriptPrimary(id: string): Promise<string> {
+    const data = await YoutubeTranscript.fetchTranscript(id);
+    return data.map((item) => item.text).join(" ");
+  }
+
+  private async getTranscriptFallback(url: string): Promise<string> {
     try {
-      const data = await YoutubeTranscript.fetchTranscript(id);
-      const trans = data.map((item) => item.text).join(" ");
-      return trans;
+      const videoId = this.getVideoId(url);
+
+      await ytdlp(url, {
+        skipDownload: true,
+        writeAutoSub: true,
+        subLang: "en",
+        convertSubs: "vtt",
+        output: `/tmp/${videoId}.%(ext)s`,
+      });
+
+      const filePath = `/tmp/${videoId}.en.vtt`;
+      const data = await fs.readFile(filePath, "utf-8");
+
+      const text = data
+        .split("\n")
+        .filter(
+          (line) =>
+            line &&
+            !line.includes("-->") &&
+            !line.includes("WEBVTT") &&
+            !line.match(/^\d+$/),
+        )
+        .join(" ");
+
+      return text;
     } catch (err: any) {
-      console.error("Transcript failed:", err.message);
+      console.error("yt-dlp fallback failed:", err.message);
       throw err;
     }
-  };
+  }
 
-  extractTranscript = async (url: string): Promise<ExtractedContent> => {
+  async extractTranscript(url: string): Promise<ExtractedContent> {
     const videoId = this.getVideoId(url);
 
-    const transcript = await this.getTranscript(videoId);
+    let transcript = "";
+
+    try {
+      console.log("Trying primary...");
+      transcript = await this.getTranscriptPrimary(videoId);
+    } catch {
+      console.log("Primary failed → fallback...");
+      try {
+        transcript = await this.getTranscriptFallback(url);
+      } catch {
+        transcript = "Transcript not available.";
+      }
+    }
 
     return {
       title: `YouTube video: ${videoId}`,
@@ -76,8 +120,10 @@ class YoutubeExtractor {
       type: "youtube",
       source: `youtube-${videoId}`,
     };
-  };
+  }
 }
+
+export default YoutubeExtractor;
 
 export class ExtractorPipeline {
   private articleExtractor = new ArticleExtractor();
@@ -96,6 +142,7 @@ export class ExtractorPipeline {
     const type = this.detectType(url);
     switch (type) {
       case "youtube":
+        console.log("@1");
         return this.youtubeExtractor.extractTranscript(url);
       case "article":
         return this.articleExtractor.extract(url);
@@ -105,6 +152,7 @@ export class ExtractorPipeline {
   async ingest(
     url: string,
     userId: string,
+    contentId: string,
   ): Promise<{ source: string; title?: string }> {
     const extracted = await this.extractContent(url);
 
@@ -113,9 +161,8 @@ export class ExtractorPipeline {
       extracted.source,
       userId,
     );
-    // console.log(docs)
-    await upsertDocs(docs);
-    // @ts-ignore
-    return { source: extracted.source, title: extracted.title };
+
+    await upsertDocs(docs, contentId); 
+    return { source: extracted.source, title: extracted.title ?? undefined };
   }
 }

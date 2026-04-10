@@ -1,7 +1,8 @@
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
-import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { configDotenv } from "dotenv";
+import { ChunkModel } from "../database/Schema";
 configDotenv();
+import mongoose from "mongoose";
 
 export const model = new ChatOpenAI({
   model: "gpt-4o-mini",
@@ -12,11 +13,6 @@ export const model = new ChatOpenAI({
   },
 });
 
-// const embeddingsModel = new HuggingFaceInferenceEmbeddings({
-//   apiKey: process.env.HF_TOKEN,
-//   model: "sentence-transformers/all-MiniLM-L6-v2",
-// });
-
 const embeddingsModel = new OpenAIEmbeddings({
   model: "text-embedding-3-small",
   apiKey: process.env.GITHUB_TOKEN,
@@ -25,24 +21,55 @@ const embeddingsModel = new OpenAIEmbeddings({
   },
 });
 
+export const upsertDocs = async (docs: any[], contentId: string) => {
+  const enrichedDocs = await Promise.all(
+    docs.map(async (doc, index) => {
+      const embedding = await embeddingsModel.embedQuery(doc.pageContent);
+      return {
+        contentId: new mongoose.Types.ObjectId(contentId),
+        userId: new mongoose.Types.ObjectId(doc.metadata?.userId),
+        source: doc.metadata?.source,
+        content: doc.pageContent,
+        embedding,
+        chunkIndex: index,
+      };
+    }),
+  );
 
-export const upsertDocs = async (docs: any[]) => {
-  return Chroma.fromDocuments(docs, embeddingsModel, {
-    collectionName: process.env.COLLECTION,
-    url: process.env.CHROMA_URL,
-    
-  });
+  await ChunkModel.insertMany(enrichedDocs);
 };
 
-export const getVectorDb = async (source: string, userId: string) => {
-  const db = await Chroma.fromExistingCollection(embeddingsModel, {
-    collectionName: process.env.COLLECTION,
-    url: process.env.CHROMA_URL,
-  });
+export const similaritySearch = async (
+  query: string,
+  userId: string,
+  source?: string,
+) => {
+  const queryEmbedding = await embeddingsModel.embedQuery(query);
 
-  db.filter = {
-    $and: [{ source: { $eq: source } }, { userId: { $eq: userId } }],
-  };
+  const results = await ChunkModel.aggregate([
+    {
+      $vectorSearch: {
+        index: "vector_index", // create this index on ChunkModel collection
+        path: "embedding",
+        queryVector: queryEmbedding,
+        numCandidates: 100,
+        limit: 5,
+        filter: {
+          userId: new mongoose.Types.ObjectId(userId),
+          ...(source && { source }),
+        },
+      },
+    },
+    {
+      $project: {
+        content: 1,
+        source: 1,
+        chunkIndex: 1,
+        contentId: 1,
+        score: { $meta: "vectorSearchScore" },
+      },
+    },
+  ]);
 
-  return db;
+  return results;
 };

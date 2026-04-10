@@ -35,11 +35,11 @@ const ingestInBackground = async (
   userId: string,
 ) => {
   try {
-    const { source } = await pipeline.ingest(link, userId);
+    const { source } = await pipeline.ingest(link, userId, contentId); 
 
     await ContentModel.findByIdAndUpdate(contentId, {
       status: "ready",
-      chromaSource: source,
+      source,
     });
 
     console.log(`[ingest] Done: ${contentId} → source: ${source}`);
@@ -48,10 +48,6 @@ const ingestInBackground = async (
     console.error(`[ingest] Failed: ${contentId}`, error.message);
   }
 };
-
-// ── Status polling endpoint ───────────────────────────────────────────────────
-// GET /api/content/:id/status
-// Frontend polls this until status is "ready" or "failed"
 
 export const getContentStatus = async (req: Request, res: Response) => {
   try {
@@ -65,7 +61,7 @@ export const getContentStatus = async (req: Request, res: Response) => {
 
     return res.json({
       status: content.status,
-      chromaSource: content.chromaSource,
+      chromaSource: content.source,
       title: content.title,
     });
   } catch (error: any) {
