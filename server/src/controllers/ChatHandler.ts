@@ -4,7 +4,7 @@ import {
   AIMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import { model, getVectorDb } from "../ai-utils/client";
+import { model, similaritySearch } from "../ai-utils/client";
 
 export const chatHandler = async (req: Request, res: Response) => {
   const { question, source, history } = req.body as {
@@ -19,14 +19,19 @@ export const chatHandler = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "question and source are required" });
   }
 
-  try {
-    // Get a VectorDB view scoped to this content's source key
-    // @ts-ignore
-    const vectorDb = await getVectorDb(source ,userId);
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
-    // Retrieve top-5 most relevant chunks for the question
-    const results = await vectorDb.similaritySearch(question, 5);
-    const context = results.map((doc: any) => doc.pageContent).join("\n---\n");
+  try {
+    const results = await similaritySearch(
+      question,
+      userId,  
+      source,  
+    );
+
+    // 👇 was doc.pageContent, your schema field is "content"
+    const context = results.map((doc: any) => doc.content).join("\n---\n");
 
     if (!context.trim()) {
       return res.json({
@@ -35,10 +40,6 @@ export const chatHandler = async (req: Request, res: Response) => {
       });
     }
 
-    // Build the message array:
-    //    SystemMessage  → RAG context injected fresh every turn
-    //    History        → prior turns so follow-ups stay coherent
-    //    HumanMessage   → the current question
     const systemPrompt = `You are a helpful assistant. Answer questions using ONLY the context below.
 If the context doesn't contain enough information, say so — do not make things up.
 
@@ -58,7 +59,6 @@ ${context}`;
       new HumanMessage(question),
     ];
 
-    // 4. Call the model
     const response = await model.invoke(messages);
     const answer =
       typeof response.content === "string"

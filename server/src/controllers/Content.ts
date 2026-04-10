@@ -1,8 +1,9 @@
 import { Response, Request } from "express";
 import { ContentModel } from "../database/Schema";
+// @ts-ignore
 import { ExtractorPipeline } from "../ai-utils/Extractor";
-
-const pipeline = new ExtractorPipeline(); // singleton
+// @ts-ignore
+const pipeline = new ExtractorPipeline();
 
 export const createContent = async (req: Request, res: Response) => {
   try {
@@ -35,7 +36,7 @@ const ingestInBackground = async (
   userId: string,
 ) => {
   try {
-    const { source } = await pipeline.ingest(link, userId, contentId); 
+    const { source } = await pipeline.ingest(link, userId, contentId);
 
     await ContentModel.findByIdAndUpdate(contentId, {
       status: "ready",
