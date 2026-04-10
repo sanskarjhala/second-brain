@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
+import { Login } from "../../../apis/userApis";
 
 function LoginForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const { email, password } = formData;
+  const { username, password } = formData;
 
   const handleOnChange = (e: any) => {
     setFormData((prevData) => ({
@@ -19,10 +20,14 @@ function LoginForm() {
     }));
   };
 
-  const handleOnSubmit = (e: any) => {
+  const handleOnSubmit = async (e: any) => {
     e.preventDefault();
-    console.log(email, password, navigate);
-    // dispatch(login(email, password, navigate))
+    // console.log(username, password, navigate);\
+    const response = await Login(username, password);
+    console.log(response);
+    // @ts-ignore
+    localStorage.setItem("token-brain", response);
+    navigate("/dashboard");
   };
 
   return (
@@ -37,9 +42,9 @@ function LoginForm() {
         </p>
         <input
           required
-          type="email"
-          name="email"
-          value={email}
+          type="text"
+          name="username"
+          value={username}
           onChange={handleOnChange}
           placeholder="Enter email address"
           className="form-style w-full"

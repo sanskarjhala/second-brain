@@ -1,8 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { SideBar } from "../components/core/Sidebar/SideBar";
 import { AddShareContent } from "../components/core/AddShareContent";
+// import { useEffect } from "react";
+// import { GetUserProfile } from "../apis/userApis";
 
 export default function DashboardLayout() {
+
+
   return (
     <div className="h-screen w-screen flex overflow-hidden bg-gray-400 p-4 gap-4">
       

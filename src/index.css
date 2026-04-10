@@ -48,6 +48,6 @@
 
 @layer components {
   .form-style {
-    @apply rounded-lg dark:bg-richblack-700 p-3 text-richblack-5 w-full border border-richblack-600 outline-none placeholder:text-richblack-400;
+    @apply rounded-lg dark:bg-richblack-700 p-3 text-black dark:text-white w-full border border-richblack-600 outline-none placeholder:text-richblack-400;
   }
 }

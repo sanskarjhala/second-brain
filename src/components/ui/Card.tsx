@@ -199,12 +199,12 @@ export const Card = ({ title, link, type }: CardProps) => {
     if (embedStatus !== "idle") return; // don't re-embed
     setEmbedStatus("embedding");
     try {
-      const res = await fetch("/api/content/embed", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: link, type, source }),
-      });
-      if (!res.ok) throw new Error("embed failed");
+      // const res = await fetch("/api/content/embed", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ url: link, type, source }),
+      // });
+      // if (!res.ok) throw new Error("embed failed");
       setEmbedStatus("done");
     } catch {
       setEmbedStatus("error");

@@ -102,6 +102,22 @@ export const signup = async (req: Request, res: Response) => {
   }
 };
 
-export const demoUser = async (req: Request, res: Response) => {
-    
+export const getUserProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+    const response = await UserModel.findOne({ _id: userId });
+    if (!response) {
+      return res.status(404).json({
+        message: "User Not Found",
+      });
+    }
+
+    return res.status(200).json({
+      response,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
 };
