@@ -2,6 +2,11 @@ import { Request, Response } from "express";
 import fs from "fs";
 import { ResumePipeline } from "../ai-utils/ResumeAnalyser.js";
 
+
+interface MulterRequest extends Request {
+  file?: Express.Multer.File; 
+}
+
 export const analyzeResume = async (req: Request, res: Response) => {
 
   const filePath = req.file?.path;
