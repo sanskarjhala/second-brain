@@ -1,24 +1,37 @@
-import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+// import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { configDotenv } from "dotenv";
 import { ChunkModel } from "../database/Schema.js";
 configDotenv();
 import mongoose from "mongoose";
+import {ChatOllama , OllamaEmbeddings} from "@langchain/ollama"
 
-export const model = new ChatOpenAI({
-  model: "gpt-4o-mini",
+// export const model = new ChatOpenAI({
+//   model: "gpt-4o-mini",
+//   temperature: 0,
+//   configuration: {
+//     baseURL: "https://models.inference.ai.azure.com",
+//     apiKey: process.env.GITHUB_TOKEN,
+//   },
+// });
+
+// const embeddingsModel = new OpenAIEmbeddings({
+//   model: "text-embedding-3-small",
+//   apiKey: process.env.GITHUB_TOKEN,
+//   configuration: {
+//     baseURL: "https://models.inference.ai.azure.com",
+//   },
+// });
+
+// Chat model (local)
+export const model = new ChatOllama({
+  model: "mistral",
   temperature: 0,
-  configuration: {
-    baseURL: "https://models.inference.ai.azure.com",
-    apiKey: process.env.GITHUB_TOKEN,
-  },
+  baseUrl: "http://localhost:11434",
 });
 
-const embeddingsModel = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
-  apiKey: process.env.GITHUB_TOKEN,
-  configuration: {
-    baseURL: "https://models.inference.ai.azure.com",
-  },
+export const embeddingsModel = new OllamaEmbeddings({
+  model: "nomic-embed-text",
+  baseUrl: "http://localhost:11434",
 });
 
 export const upsertDocs = async (docs: any[], contentId: string) => {
@@ -49,7 +62,7 @@ export const similaritySearch = async (
   const results = await ChunkModel.aggregate([
     {
       $vectorSearch: {
-        index: "vector_index", // create this index on ChunkModel collection
+        index: "vector_index", 
         path: "embedding",
         queryVector: queryEmbedding,
         numCandidates: 100,

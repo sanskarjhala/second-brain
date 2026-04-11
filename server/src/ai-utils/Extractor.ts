@@ -6,12 +6,13 @@ import { URL } from "node:url";
 import { Chunking } from "./ResumeAnalyser.js";
 import { upsertDocs } from "./client.js";
 
-
-import { YoutubeTranscript } from "youtube-transcript";
+// import { YoutubeTranscript } from "youtube-transcript";
+import { YoutubeTranscript } from 'youtube-transcript-plus';
 import * as YouTubeVideoIdPkg from "youtube-video-id";
 import ytdlp from "yt-dlp-exec";
 import fs from "fs/promises";
 
+const YouTubeVideoId = (YouTubeVideoIdPkg as any).default || YouTubeVideoIdPkg;
 
 interface ExtractedContent {
   title?: string | null;
@@ -52,8 +53,6 @@ class ArticleExtractor {
   };
 }
 
-
-const YouTubeVideoId = (YouTubeVideoIdPkg as any).default || YouTubeVideoIdPkg;
 class YoutubeExtractor {
   private getVideoId(url: string): string {
     const id = YouTubeVideoId(url);
@@ -64,40 +63,15 @@ class YoutubeExtractor {
   }
 
   private async getTranscriptPrimary(id: string): Promise<string> {
-    const data = await YoutubeTranscript.fetchTranscript(id);
-    return data.map((item) => item.text).join(" ");
-  }
-
-  private async getTranscriptFallback(url: string): Promise<string> {
     try {
-      const videoId = this.getVideoId(url);
+      const yt = new YoutubeTranscript();
+      console.log(id)
 
-      await ytdlp(url, {
-        skipDownload: true,
-        writeAutoSub: true,
-        subLang: "en",
-        convertSubs: "vtt",
-        output: `/tmp/${videoId}.%(ext)s`,
-      });
-
-      const filePath = `/tmp/${videoId}.en.vtt`;
-      const data = await fs.readFile(filePath, "utf-8");
-
-      const text = data
-        .split("\n")
-        .filter(
-          (line) =>
-            line &&
-            !line.includes("-->") &&
-            !line.includes("WEBVTT") &&
-            !line.match(/^\d+$/),
-        )
-        .join(" ");
-
-      return text;
-    } catch (err: any) {
-      console.error("yt-dlp fallback failed:", err.message);
-      throw err;
+      const transcript = await yt.fetchTranscript(id);
+      console.log(transcript)
+      return transcript.map((line : any) => line.text).join(" ");
+    } catch (error: any) {
+      throw new Error(`Failed to fetch transcript: ${error.message }`);
     }
   }
 
@@ -111,11 +85,6 @@ class YoutubeExtractor {
       transcript = await this.getTranscriptPrimary(videoId);
     } catch {
       console.log("Primary failed → fallback...");
-      try {
-        transcript = await this.getTranscriptFallback(url);
-      } catch {
-        transcript = "Transcript not available.";
-      }
     }
 
     return {
@@ -126,8 +95,6 @@ class YoutubeExtractor {
     };
   }
 }
-
-export default YoutubeExtractor;
 
 export class ExtractorPipeline {
   private articleExtractor = new ArticleExtractor();
@@ -165,8 +132,8 @@ export class ExtractorPipeline {
       extracted.source,
       userId,
     );
-
-    await upsertDocs(docs, contentId); 
+    console.log("HRERERE")
+    await upsertDocs(docs, contentId);
     return { source: extracted.source, title: extracted.title ?? undefined };
   }
 }
