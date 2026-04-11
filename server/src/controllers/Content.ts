@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import { ContentModel } from "../database/Schema";
 // @ts-ignore
-import { ExtractorPipeline } from "../ai-utils/Extractor";
+import { ExtractorPipeline } from "../ai-utils/Extractor.js";
 // @ts-ignore
 const pipeline = new ExtractorPipeline();
 
