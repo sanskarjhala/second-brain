@@ -21,10 +21,10 @@ export const createContent = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Content added",
       contentId: content._id,
-      status: "processing",
+      status: "failed",
     });
 
-    ingestInBackground(content._id.toString(), link, userId as string);
+    // ingestInBackground(content._id.toString(), link, userId as string);
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
@@ -53,7 +53,7 @@ const ingestInBackground = async (
 export const getContentStatus = async (req: Request, res: Response) => {
   try {
     const content = await ContentModel.findById(req.params.id).select(
-      "status chromaSource title",
+      "status source title",
     );
 
     if (!content) {
@@ -64,6 +64,20 @@ export const getContentStatus = async (req: Request, res: Response) => {
       status: content.status,
       chromaSource: content.source,
       title: content.title,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const getAllContent = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+    console.log(userId)
+    const response = await ContentModel.find({ userId: userId });
+
+    return res.status(200).json({
+      response : response,
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });

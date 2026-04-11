@@ -220,7 +220,7 @@ export const CreateContentModel = ({
               <Button
                 variant="primary"
                 text="Save to Brain"
-                // type="submit"  — add this prop to your Button if it supports it
+                type="submit" 
               />
             </form>
           )}

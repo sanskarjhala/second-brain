@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { Login } from "../../../apis/userApis";
+import toast from "react-hot-toast";
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -9,7 +10,6 @@ function LoginForm() {
     username: "",
     password: "",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const { username, password } = formData;
 
@@ -22,12 +22,23 @@ function LoginForm() {
 
   const handleOnSubmit = async (e: any) => {
     e.preventDefault();
-    // console.log(username, password, navigate);\
-    const response = await Login(username, password);
-    console.log(response);
-    // @ts-ignore
-    localStorage.setItem("token-brain", response);
-    navigate("/dashboard");
+
+    const toastId = toast.loading("Logging in...");
+
+    try {
+      const response = await Login(username, password);
+
+      if (!response.success) {
+        toast.error(response.message || "Login failed", { id: toastId });
+        return;
+      }
+
+      localStorage.setItem("token-brain", response.token!);
+      toast.success("Welcome back!", { id: toastId });
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Something went wrong. Try again.", { id: toastId });
+    }
   };
 
   return (

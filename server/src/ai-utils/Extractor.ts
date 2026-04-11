@@ -9,8 +9,7 @@ import { upsertDocs } from "./client.js";
 // import { YoutubeTranscript } from "youtube-transcript";
 import { YoutubeTranscript } from 'youtube-transcript-plus';
 import * as YouTubeVideoIdPkg from "youtube-video-id";
-import ytdlp from "yt-dlp-exec";
-import fs from "fs/promises";
+
 
 const YouTubeVideoId = (YouTubeVideoIdPkg as any).default || YouTubeVideoIdPkg;
 

@@ -2,13 +2,14 @@ import brain2icon from "../../../assets/brain2icon.png";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../../context/ThemeContext";
 import { Sun, Moon } from "lucide-react";
-import { CtaButton } from "../../ui/CtaButton";
+import { useAuth } from "../../../context/AuthContext";
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  //   @ts-ignore
+  // @ts-ignore
   const { dark, setDark } = useTheme();
-  console.log(dark);
+  const { user, logout } = useAuth(); // make sure logout is in your AuthContext
+  console.log(user)
 
   return (
     <div className="flex justify-center pt-2 md:pt-6 dark:bg-darkbg">
@@ -32,7 +33,7 @@ export const Navbar = () => {
           <span>Second Brain</span>
         </div>
 
-        {/* Links + Dark Mode Button */}
+        {/* Links + Actions */}
         <nav className="font-medium">
           <div className="flex justify-end items-center space-x-4 md:space-x-6">
             <a
@@ -50,7 +51,40 @@ export const Navbar = () => {
               Contact
             </a>
 
-            <CtaButton/>
+            {/* ✅ Conditional Auth Buttons */}
+            {user ? (
+              // User is logged in → show Dashboard + Logout
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-4 py-1.5 rounded-full bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 transition-colors"
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={logout}
+                  className="px-4 py-1.5 rounded-full border border-purple-400 text-purple-600 dark:text-purple-400 text-sm font-medium hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              // User is not logged in → show Login + Signup
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="px-4 py-1.5 rounded-full border border-purple-400 text-purple-600 dark:text-purple-400 text-sm font-medium hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate("/signup")}
+                  className="px-4 py-1.5 rounded-full bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 transition-colors"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
 
             {/* Dark / Light Toggle */}
             <button

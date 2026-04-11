@@ -12,7 +12,7 @@ export default {
         accent: "#A855F7",
         accentHover: "#C084FC",
         secondary: "#B3B3B3",
-        
+        darkGreen: "#285A48"
 
         // New colors for Dark Mode
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const apiurl = import.meta.env.VITE_API_URL;
+// const apiurl = import.meta.env.VITE_API_URL;
+const apiurl = "http://localhost:8080"
 
 const endpoints = {
   SignupUrl: apiurl + "/api/user/register",
@@ -8,56 +9,54 @@ const endpoints = {
   GetUserProfile: apiurl + "/api/user/get-user-profile",
 };
 
-interface LoginResponse {
-  token?: string;
-}
-
-export const Signup = async (username: string, password: string) => {
+export const Signup = async (
+  username: string,
+  password: string,
+): Promise<{ success: boolean; message?: string }> => {
   try {
+    // @ts-ignore
     const response = await axios.post(endpoints.SignupUrl, {
       username,
       password,
     });
 
-    if (response.status !== 200) {
-      throw new Error();
-    }
-    return response.status;
+    return { success: true };
   } catch (error: any) {
-    return error.message;
+    const message = error.response?.data?.message || "Signup failed";
+    return { success: false, message };
   }
 };
 
 export const Login = async (
   username: string,
   password: string,
-): Promise<LoginResponse> => {
+): Promise<{ success: boolean; token?: string; message?: string }> => {
   try {
     const response = await axios.post(endpoints.LoginUrl, {
       username,
       password,
     });
 
-    return response.data.token;
+    return { success: true, token: response.data.token };
   } catch (error: any) {
-    return error.response.status;
+    const message =
+      error.response?.data?.message || "Invalid username or password";
+    return { success: false, message };
   }
 };
 
-export const GetUserProfile = async () => {
+export const GetUserProfile = async (token: string) => {
   try {
-    const token = localStorage.getItem("token-brain");
     const response = await axios.get(endpoints.GetUserProfile, {
-      headers: {
-        Authorization: token,
-      },
+      headers: { Authorization: token },
     });
 
-    if (response.status !== 404) {
-      throw new Error(`${response.status}`);
-    }
-    return response;
+    return { success: true, data: response.data };
   } catch (error: any) {
-    return error.response.status;
+    const status = error.response?.status;
+    if (status === 401) {
+      return { success: false, status: 401 };
+    }
+    return { success: false, status };
   }
 };

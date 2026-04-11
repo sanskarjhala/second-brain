@@ -19,6 +19,7 @@ const ContentTypes = [
   "audio",
   "twitter",
   "docs",
+  "resume"
 ]; // extending as per needs
 
 // const contentSchema = new Schema({

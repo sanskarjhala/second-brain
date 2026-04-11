@@ -5,7 +5,9 @@ import { ShareIcon } from "../../icons/ShareIcon";
 interface CardProps {
   title: string;
   link: string;
-  type: "youtube" | "twitter";
+  type: "youtube" | "twitter" | "article" | "github" | "website";
+  status: "processing" | "ready" | "failed";
+  onDelete?: () => void;
 }
 
 const YoutubeIcon = () => (
@@ -14,11 +16,42 @@ const YoutubeIcon = () => (
   </svg>
 );
 
+const ArticleIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+);
+
+const GithubIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+  </svg>
+);
+
 const TwitterIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="#378ADD">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
 );
+
+const typeConfig = {
+  youtube: { icon: <YoutubeIcon />, color: "text-red-500" },
+  twitter: { icon: <TwitterIcon />, color: "text-sky-500" },
+  github: { icon: <GithubIcon />, color: "text-gray-800" },
+  article: { icon: <ArticleIcon />, color: "text-amber-600" },
+  website: { icon: <ArticleIcon />, color: "text-violet-600" },
+};
 
 const ChatIcon = () => (
   <svg
@@ -45,7 +78,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
 }
-// I have removed link from here and have to cheack after deployment 
+// I have removed link from here and have to cheack after deployment
 const ChatDrawer = ({ title, source, onClose }: ChatDrawerProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -179,44 +212,24 @@ const ChatDrawer = ({ title, source, onClose }: ChatDrawerProps) => {
 };
 
 // ── Card ───────────────────────────────────────────────────────────────────
-export const Card = ({ title, link, type }: CardProps) => {
+export const Card = ({ title, link, type, status }: CardProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [embedStatus, setEmbedStatus] = useState<
-    "idle" | "embedding" | "done" | "error"
-  >("idle");
   const [chatOpen, setChatOpen] = useState(false);
+  console.log("Card status:", title, status);
 
   // source key — unique per content item, used to scope vectorDB queries
   const source = `content-${btoa(link).slice(0, 16)}`;
 
   const handleLoad = () => {
     setIsLoading(false);
-    // kick off embedding as soon as content loads
-    embedContent();
   };
 
-  const embedContent = async () => {
-    if (embedStatus !== "idle") return; // don't re-embed
-    setEmbedStatus("embedding");
-    try {
-      // const res = await fetch("/api/content/embed", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ url: link, type, source }),
-      // });
-      // if (!res.ok) throw new Error("embed failed");
-      setEmbedStatus("done");
-    } catch {
-      setEmbedStatus("error");
-    }
-  };
 
   useEffect(() => {
     if (type === "twitter" && (window as any).twttr) {
       (window as any).twttr.widgets.load();
       setTimeout(() => {
         setIsLoading(false);
-        embedContent();
       }, 1500);
     }
   }, [type, link]);
@@ -227,7 +240,7 @@ export const Card = ({ title, link, type }: CardProps) => {
         {/* Header row */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            {type === "youtube" ? <YoutubeIcon /> : <TwitterIcon />}
+            {typeConfig[type]?.icon}
             <span className="font-medium text-sm">{title}</span>
           </div>
           <div className="flex gap-3 items-center">
@@ -238,24 +251,28 @@ export const Card = ({ title, link, type }: CardProps) => {
           </div>
         </div>
 
+
         {/* Media content */}
         <div className="pt-2">
-          {isLoading && (
+          {isLoading && type !== "article" && type !== "github" && (
             <div className="w-full h-40 flex items-center justify-center bg-gray-100 rounded text-sm text-gray-400">
               Loading...
             </div>
           )}
+
+          {/* YouTube embed */}
           {type === "youtube" && (
             <iframe
               className={`w-full pt-5 ${isLoading ? "hidden" : "block"}`}
               src={link.replace("watch?v=", "embed/")}
               title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               onLoad={handleLoad}
             />
           )}
+
+          {/* Twitter embed */}
           {type === "twitter" && (
             <blockquote
               className={`twitter-tweet ${isLoading ? "hidden" : "block"}`}
@@ -263,12 +280,55 @@ export const Card = ({ title, link, type }: CardProps) => {
               <a href={link.replace("x.com", "twitter.com")} />
             </blockquote>
           )}
+
+          {/* GitHub — show repo card style */}
+          {type === "github" && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-colors group"
+            >
+              <GithubIcon />
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-800 truncate group-hover:text-black">
+                  {/* extract "owner/repo" from URL */}
+                  {link.replace("https://github.com/", "")}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  GitHub Repository
+                </p>
+              </div>
+              <span className="ml-auto text-gray-400 text-xs">↗</span>
+            </a>
+          )}
+
+          {/* Article — show link preview style */}
+          {type === "article" && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 flex flex-col gap-1 p-3 rounded-lg border border-amber-100 bg-amber-50 hover:bg-amber-100 transition-colors group"
+            >
+              <div className="flex items-center gap-2">
+                <ArticleIcon />
+                <p className="text-xs text-amber-700 truncate font-medium">
+                  {new URL(link).hostname}
+                </p>
+              </div>
+              <p className="text-sm font-medium text-gray-800 line-clamp-2 group-hover:text-black">
+                {title}
+              </p>
+              <p className="text-xs text-gray-400 truncate">{link}</p>
+            </a>
+          )}
         </div>
 
         {/* Chat button row */}
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            {embedStatus === "embedding" && (
+            {status === "processing" && (
               <>
                 <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
                 <span className="text-xs text-gray-400">
@@ -276,13 +336,13 @@ export const Card = ({ title, link, type }: CardProps) => {
                 </span>
               </>
             )}
-            {embedStatus === "done" && (
+            {status === "ready" && (
               <>
                 <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
                 <span className="text-xs text-gray-400">Ready to chat</span>
               </>
             )}
-            {embedStatus === "error" && (
+            {status === "failed" && (
               <>
                 <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
                 <span className="text-xs text-red-400">Index failed</span>
@@ -292,7 +352,7 @@ export const Card = ({ title, link, type }: CardProps) => {
 
           <button
             onClick={() => setChatOpen(true)}
-            disabled={embedStatus !== "done"}
+            disabled={status !== "ready"}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-purple-200 text-purple-600
               hover:bg-purple-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >

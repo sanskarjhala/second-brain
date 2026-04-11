@@ -25,6 +25,8 @@ export default function ResumePage() {
   const [chatLoading, setChatLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const [reportCollapsed, setReportCollapsed] = useState(false);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, chatLoading]);
@@ -39,28 +41,32 @@ export default function ResumePage() {
       const formData = new FormData();
       formData.append("resume", resumeFile);
       formData.append("jobDescription", jobDesc);
-
-      const res = await fetch("/api/resume/analyze", {
+      const token = localStorage.getItem("token-brain");
+      const res = await fetch("http://localhost:8080/api/resume/analyze", {
         method: "POST",
+        // @ts-ignore
+        headers: {
+          Authorization: token,
+        },
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Analysis failed");
-
-      const data = await res.json(); // { score, missing_skills, strong_matches, weak_areas, suggestions }
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Analysis failed");
+      }
+      console.log("RESUME UPLAOD RESPONSE ", res);
+      const data: Report = await res.json();
       setReport(data);
 
-      // seed the chat with the report as context
-      const reportSummary = `
-Resume analysis complete. Here is the report:
-- Score: ${data.score}/100
-- Strong matches: ${data.strong_matches.join(", ")}
-- Missing skills: ${data.missing_skills.join(", ")}
-- Weak areas: ${data.weak_areas.join(", ")}
-- Suggestions: ${data.suggestions.join(" | ")}
+      const reportSummary = `Resume analysis complete! Here's your ATS report:
+ Score: ${data.score}/100
+Strong matches: ${data.strong_matches.join(", ")}
+ Missing skills: ${data.missing_skills.join(", ")}
+Weak areas: ${data.weak_areas.join(", ")}
+Suggestions: ${data.suggestions.join(" | ")}
 
-The user may now ask follow-up questions about their resume or this job.
-      `.trim();
+Ask me anything about your resume or how to improve it!`;
 
       setMessages([{ role: "assistant", content: reportSummary }]);
       setPhase("chat");
@@ -72,6 +78,8 @@ The user may now ask follow-up questions about their resume or this job.
   };
 
   // ── Step 2: Chat ──────────────────────────────────────────────────────────
+  const MEMORY_WINDOW = 10; // keep last 10 messages
+
   const handleSend = async () => {
     if (!input.trim() || chatLoading) return;
 
@@ -82,33 +90,31 @@ The user may now ask follow-up questions about their resume or this job.
     setChatLoading(true);
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      // ✅ only send last N messages to backend
+      console.log("callinmg this");
+      const recentHistory = updatedMessages.slice(-MEMORY_WINDOW);
+      const token = localStorage.getItem("token-brain");
+      const res = await fetch("http://localhost:8080/api/resume/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // @ts-ignore
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: `You are an expert resume coach and ATS specialist. 
-The user just received this resume analysis report:
-
-Score: ${report?.score}/100
-Strong matches: ${report?.strong_matches.join(", ")}
-Missing skills: ${report?.missing_skills.join(", ")}
-Weak areas: ${report?.weak_areas.join(", ")}
-Suggestions: ${report?.suggestions.join(" | ")}
-
-Answer the user's questions about their resume, the job fit, how to improve, etc.
-Be concise, specific, and actionable.`,
-          messages: updatedMessages.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
+          question: userMsg.content,
+          report,
+          history: recentHistory, // ✅ sliding window
         }),
       });
 
+      if (!res.ok) throw new Error("Chat failed");
+
       const data = await res.json();
-      const reply = data.content?.map((b: any) => b.text || "").join("") ?? "";
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.answer },
+      ]);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -204,50 +210,95 @@ Be concise, specific, and actionable.`,
     <div className="flex flex-col h-full">
       {/* Report Summary Banner */}
       {report && (
-        <div className="shrink-0 mx-4 mt-4 bg-white border border-gray-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-gray-700">
-              ATS Report
-            </span>
-            <span
-              className="text-lg font-bold"
-              style={{
-                color:
-                  report.score >= 75
-                    ? "#639922"
-                    : report.score >= 50
-                      ? "#BA7517"
-                      : "#A32D2D",
-              }}
-            >
-              {report.score}
-              <span className="text-xs font-normal text-gray-400">/100</span>
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <p className="text-gray-400 uppercase font-medium mb-1">
-                Strong matches
-              </p>
-              {report.strong_matches.map((s, i) => (
-                <p key={i} className="text-gray-700 flex gap-1.5 mb-0.5">
-                  <span className="text-green-500 font-bold">+</span>
-                  {s}
-                </p>
-              ))}
+        <div className="shrink-0 mx-4 mt-4 bg-white border border-gray-200 rounded-xl overflow-hidden">
+          {/* Header — always visible */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-gray-700">
+                ATS Report
+              </span>
+              <span
+                className="text-sm font-bold"
+                style={{
+                  color:
+                    report.score >= 75
+                      ? "#639922"
+                      : report.score >= 50
+                        ? "#BA7517"
+                        : "#A32D2D",
+                }}
+              >
+                {report.score}
+                <span className="text-xs font-normal text-gray-400">/100</span>
+              </span>
             </div>
-            <div>
-              <p className="text-gray-400 uppercase font-medium mb-1">
-                Missing skills
-              </p>
-              {report.missing_skills.map((s, i) => (
-                <p key={i} className="text-gray-700 flex gap-1.5 mb-0.5">
-                  <span className="text-red-400 font-bold">-</span>
-                  {s}
-                </p>
-              ))}
+
+            <div className="flex items-center gap-2">
+              {/* ✅ collapse toggle */}
+              <button
+                onClick={() => setReportCollapsed(!reportCollapsed)}
+                className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors"
+              >
+                {reportCollapsed ? "▼ Show Report" : "▲ Hide Report"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setPhase("upload");
+                  setReport(null);
+                  setMessages([]);
+                  setResumeFile(null);
+                  setJobDesc("");
+                }}
+                className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors"
+              >
+                ↩ New
+              </button>
             </div>
           </div>
+
+          {/* Collapsible content */}
+          {!reportCollapsed && (
+            <div className="px-4 pb-4 border-t border-gray-100">
+              <div className="grid grid-cols-2 gap-3 text-xs mt-3">
+                <div>
+                  <p className="text-gray-400 uppercase font-medium mb-1">
+                    Strong matches
+                  </p>
+                  {report.strong_matches.map((s, i) => (
+                    <p key={i} className="text-gray-700 flex gap-1.5 mb-0.5">
+                      <span className="text-green-500 font-bold">+</span>
+                      {s}
+                    </p>
+                  ))}
+                </div>
+                <div>
+                  <p className="text-gray-400 uppercase font-medium mb-1">
+                    Missing skills
+                  </p>
+                  {report.missing_skills.map((s, i) => (
+                    <p key={i} className="text-gray-700 flex gap-1.5 mb-0.5">
+                      <span className="text-red-400 font-bold">-</span>
+                      {s}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              {report.suggestions.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-gray-400 uppercase font-medium text-xs mb-1">
+                    Suggestions
+                  </p>
+                  {report.suggestions.map((s, i) => (
+                    <p key={i} className="text-xs text-gray-600 mb-0.5">
+                      💡 {s}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -308,23 +359,3 @@ Be concise, specific, and actionable.`,
     </div>
   );
 }
-
-// // Express example
-// import { ResumePipeline } from "./resumePipeline";
-
-// app.post("/api/resume/analyze", upload.single("resume"), async (req, res) => {
-//   const pipeline = new ResumePipeline();
-//   const report = await pipeline.main(
-//     req.file.path,           // temp path of uploaded PDF
-//     req.body.jobDescription,
-//     req.user.id              // or whatever your userId is
-//   );
-
-//   // report is an AIMessage — parse the JSON from its content
-//   const raw = typeof report.content === "string"
-//     ? report.content
-//     : (report.content as any[]).map((b: any) => b.text || "").join("");
-
-//   const clean = raw.replace(/```json|```/g, "").trim();
-//   res.json(JSON.parse(clean));
-// });

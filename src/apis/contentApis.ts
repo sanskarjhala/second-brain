@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const apiurl = import.meta.env.VITE_API_URL;
-
+// const apiurl = import.meta.env.VITE_API_URL;
+const apiurl = "http://localhost:8080"
 const endpoints = {
   NewContent: apiurl + "/api/content/add",
   deleteContent: apiurl + "",
   getContentStatus: (id: string) => `${apiurl}/api/content/status/${id}`,
+  getAllContent: apiurl + "/api/content/all-content",
 };
 
 interface newContentProps {
@@ -16,18 +17,19 @@ interface newContentProps {
 
 export const AddContent = async ({ link, type, title }: newContentProps) => {
   try {
-    const response = await axios.post(endpoints.NewContent, {
-      link,
-      title,
-      type,
-    });
+    const token = localStorage.getItem("token-brain");
+    console.log("FROM ADD CONTENT API" , token)
+    // @ts-ignore
+    const response = await axios.post(
+      endpoints.NewContent,
+      { link, title, type },
+      { headers: { Authorization: token } },
+    );
 
-    if (response.status !== 200) {
-      throw new Error();
-    }
-    return response.status;
+    return { success: true };
   } catch (error: any) {
-    return error.message;
+    const message = error.response?.data?.message || "Failed to add content";
+    return { success: false, message };
   }
 };
 
@@ -37,4 +39,18 @@ export const getContentStatus = async (id: string) => {
     throw new Error();
   }
   return response.data.status;
+};
+
+export const getAllContent = async (token: string) => {
+  try {
+
+    const response = await axios.get(endpoints.getAllContent, {
+      headers: { Authorization: token},
+    });
+    console.log("API CALLED : " , response)
+    return { success: true, content: response.data.content ?? response.data };
+  } catch (error: any) {
+    const message = error.response?.data?.message || "Failed to fetch content";
+    return { success: false, message, content: [] };
+  }
 };

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { Signup } from "../../../apis/userApis";
+import { useNavigate } from "react-router-dom";
 
 function SignupForm() {
   const [formData, setFormData] = useState({
@@ -8,7 +10,7 @@ function SignupForm() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useNavigate();
   const { username, password } = formData;
 
   const handleOnChange = (e: any) => {
@@ -18,24 +20,21 @@ function SignupForm() {
   const handleOnSubmit = async (e: any) => {
     e.preventDefault();
 
+    const toastId = toast.loading("Creating account...");
+
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await Signup(username, password);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || "Signup failed");
+      if (!response.success) {
+        toast.error(response.message || "Signup failed", { id: toastId });
         return;
       }
 
-      toast.success("Account created!");
+      toast.success("Account created! Please login.", { id: toastId });
       setFormData({ username: "", password: "" });
-    } catch {
-      toast.error("Something went wrong");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Something went wrong. Try again.", { id: toastId });
     }
   };
 
