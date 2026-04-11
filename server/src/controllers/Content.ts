@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { ContentModel } from "../database/Schema";
+import { ContentModel } from "../database/Schema.js";
 
 import { ExtractorPipeline } from "../ai-utils/Extractor.js";
 

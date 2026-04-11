@@ -3,8 +3,8 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { JSDOM } from "jsdom";
 import { URL } from "node:url";
-import { Chunking } from "./ResumeAnalyser";
-import { upsertDocs } from "./client";
+import { Chunking } from "./ResumeAnalyser.js";
+import { upsertDocs } from "./client.js";
 
 interface ExtractedContent {
   title?: string | null;
@@ -46,10 +46,10 @@ class ArticleExtractor {
 }
 
 import { YoutubeTranscript } from "youtube-transcript";
-import YouTubeVideoId from "youtube-video-id";
+import * as YouTubeVideoIdPkg from "youtube-video-id";
 import ytdlp from "yt-dlp-exec";
 import fs from "fs/promises";
-
+const YouTubeVideoId = (YouTubeVideoIdPkg as any).default || YouTubeVideoIdPkg;
 class YoutubeExtractor {
   private getVideoId(url: string): string {
     const id = YouTubeVideoId(url);

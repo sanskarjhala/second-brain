@@ -4,7 +4,7 @@ import {
   AIMessage,
   SystemMessage,
 } from "@langchain/core/messages";
-import { model, similaritySearch } from "../ai-utils/client";
+import { model, similaritySearch } from "../ai-utils/client.js";
 
 export const chatHandler = async (req: Request, res: Response) => {
   const { question, source, history } = req.body as {

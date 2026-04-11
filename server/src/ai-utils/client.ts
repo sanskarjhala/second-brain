@@ -1,6 +1,6 @@
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { configDotenv } from "dotenv";
-import { ChunkModel } from "../database/Schema";
+import { ChunkModel } from "../database/Schema.js";
 configDotenv();
 import mongoose from "mongoose";
 

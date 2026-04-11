@@ -2,8 +2,8 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { AIMessage } from "@langchain/core/messages";
 import z from "zod";
-import { model, similaritySearch , upsertDocs } from "./client";
-import { ContentModel } from "../database/Schema";
+import { model, similaritySearch , upsertDocs } from "./client.js";
+import { ContentModel } from "../database/Schema.js";
 
 const ResumeSchema = z.object({
   skills: z.array(z.string()),

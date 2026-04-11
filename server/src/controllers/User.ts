@@ -1,6 +1,6 @@
 import z from "zod";
 import { Request, Response } from "express";
-import { UserModel } from "../database/Schema";
+import { UserModel } from "../database/Schema.js";
 import bycrpt from "bcrypt";
 import jwt from "jsonwebtoken";
 

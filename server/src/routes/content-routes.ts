@@ -1,8 +1,8 @@
 import express from "express";
-import { createContent, getContentStatus } from "../controllers/Content";
-import { UserMiddleware } from "../middleware/auth";
-import { chatHandler } from "../controllers/ChatHandler";
-import { similaritySearch } from "../ai-utils/client";
+import { createContent, getContentStatus } from "../controllers/Content.js";
+import { UserMiddleware } from "../middleware/auth.js";
+import { chatHandler } from "../controllers/ChatHandler.js";
+import { similaritySearch } from "../ai-utils/client.js";
 const router = express.Router();
 
 router.post("/add", UserMiddleware, createContent);
