@@ -6,6 +6,13 @@ import { URL } from "node:url";
 import { Chunking } from "./ResumeAnalyser.js";
 import { upsertDocs } from "./client.js";
 
+
+import { YoutubeTranscript } from "youtube-transcript";
+import * as YouTubeVideoIdPkg from "youtube-video-id";
+import ytdlp from "yt-dlp-exec";
+import fs from "fs/promises";
+
+
 interface ExtractedContent {
   title?: string | null;
   content: string | null | undefined;
@@ -36,19 +43,16 @@ class ArticleExtractor {
     // @ts-ignore
     const text = this.removeHtmlTags(article.content);
     return {
-      title: article.title,
-      content: text,
-      shortSummary: article.excerpt,
+      title: article.title ?? null,
+      content: text ?? null,
+      shortSummary: article.excerpt ?? null,
       type: "article",
       source: `article-${encodeURIComponent(url)}`,
     };
   };
 }
 
-import { YoutubeTranscript } from "youtube-transcript";
-import * as YouTubeVideoIdPkg from "youtube-video-id";
-import ytdlp from "yt-dlp-exec";
-import fs from "fs/promises";
+
 const YouTubeVideoId = (YouTubeVideoIdPkg as any).default || YouTubeVideoIdPkg;
 class YoutubeExtractor {
   private getVideoId(url: string): string {
