@@ -1,25 +1,35 @@
 import type { ReactElement } from "react";
-import { Link } from "react-router-dom";
 
-interface SideBarProps {
-  title: string;
+export function SidebarItems({
+  text,
+  icon,
+  sidebar,
+  setFilter,
+  isActive,
+}: {
+  text: string;
   icon: ReactElement;
-  collapsed?: boolean;
-  path?: string;
-  active?: boolean;
-}
-
-export const SideBarItems = ({ title, icon, collapsed = false, path = "/", active = false }: SideBarProps) => {
+  sidebar: boolean;
+  setFilter: (value: string) => void;
+  isActive: boolean;
+}) {
   return (
-    <Link
-      to={path}
-      className={`flex gap-3 mb-5 items-center font-sans cursor-pointer transition-colors rounded-md px-2 py-1
-        ${active ? "text-purple-700 bg-purple-50 font-semibold" : "hover:text-gray-600"}`}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => setFilter(text)}
+      onKeyDown={(e) => e.key === "Enter" && setFilter(text)}
+      className={`flex gap-6  hover:bg-purple-100 dark:hover:bg-[#282828] rounded-md transition-all duration-300 ease-linear 
+                                    whitespace-nowrap 
+                                    overflow-hidden mr-2 ml-2 pl-3 p-2 cursor-pointer
+                                    ${isActive ? "bg-purple-200" : ""} focus:outline-none `}
     >
-      <span>{icon}</span>
-      {!collapsed && (
-        <span className="whitespace-nowrap overflow-hidden text-ellipsis">{title}</span>
-      )}
-    </Link>
+      <span className="size-2">{icon}</span>
+      <span
+        className={`${sidebar ? "opacity-100 w-auto ml-1" : "opacity-0 w-0"}`}
+      >
+        {text}
+      </span>
+    </div>
   );
-};
+}

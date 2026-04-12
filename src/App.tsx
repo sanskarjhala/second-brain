@@ -1,59 +1,46 @@
-import { Route, Routes } from "react-router-dom";
-import { HomeLayout } from "./layout/HomeLayout";
 import DashboardLayout from "./layout/DashboardLayout";
-import { CardGrid } from "./components/core/CardGrid";
-import { Signup } from "./pages/SignUpPage";
-import { Login } from "./pages/LoginPage";
-import YoutubePage from "./pages/YoutubePage";
-import TwitterPage from "./pages/TwitterPage";
-import ResumePage from "./pages/ResumePage";
-import LandingPage from "./pages/Home";
-import { SupportPage } from "./pages/SupportPage";
-import { OpenRoute } from "./components/core/auth/OpenRoute";
-import { PrivateRoute } from "./components/core/auth/PrivateRoute";
+import NavbarLayout from "./layout/NavbarLayout";
+import { Dashboard } from "./pages/dashboard";
+import LandingPage from "./pages/landingPage";
+import { Signin } from "./pages/signin";
+import { Signup } from "./pages/signup";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./context/themeContext";
+import { SupportPage } from "./pages/supportme";
+import { About } from "./pages/about";
+import { Contact } from "./pages/contact";
+
+import { Toaster } from "react-hot-toast";
+import { AnalyticsTracker } from "./components/AnalyticsTracker";
 
 function App() {
   return (
-    <div className="w-screen h-screen overflow-x-hidden dark:bg-black">
-      <Routes>
-        <Route element={<HomeLayout />}>
-          <Route index element={<LandingPage />} />
-          <Route
-            path="login"
-            element={
-              <OpenRoute>
-                <Login />
-              </OpenRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <OpenRoute>
-                <Signup />
-              </OpenRoute>
-            }
-          />
-          <Route path="/support" element={<SupportPage />} />
-          {/* <Route path="/about" element={<About />} /> */}
-          {/* <Route path="/contact" element={<Contact />} /> */}
-        </Route>
+    //  here theme is provided so it works on both pages landing+dashboard
+    <ThemeProvider>
+      <BrowserRouter>
+        <Toaster position="top-center" reverseOrder={false} />
 
-        <Route
-          path={"/dashboard"}
-          element={
-            <PrivateRoute>
-              <DashboardLayout />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<CardGrid />} />
-          <Route path={"youtube"} element={<YoutubePage />} />
-          <Route path={"twitter"} element={<TwitterPage />} />
-          <Route path={"resume"} element={<ResumePage />} />
-        </Route>
-      </Routes>
-    </div>
+        {/* Track SPA route changes */}
+        <AnalyticsTracker />
+
+        <Routes>
+          {/* Layout with Navbar */}
+          <Route element={<NavbarLayout />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signin" element={<Signin />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+          </Route>
+
+          {/* Dashboard layout without Navbar */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

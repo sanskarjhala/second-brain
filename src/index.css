@@ -1,53 +1,24 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@variant dark (&:where(.dark, .dark *));
-@theme {
-  /* Richblack */
-  --color-richblack-5: #f1f2ff;
-  --color-richblack-25: #dbddea;
-  --color-richblack-50: #c5c7d4;
-  --color-richblack-100: #afb2bf;
-  --color-richblack-200: #999daa;
-  --color-richblack-300: #838894;
-  --color-richblack-400: #6e727f;
-  --color-richblack-500: #585d69;
-  --color-richblack-600: #424854;
-  --color-richblack-700: #2c333f;
-  --color-richblack-800: #161d29;
-  --color-richblack-900: #000814;
 
-  /* Yellow */
-  --color-yellow-5: #ffd60a;
-  --color-yellow-25: #f5c842;
-  --color-yellow-50: #ffd60a;
-
-  /* Pink */
-  --color-pink-200: #ff7d9d;
-
-  /* Blue */
-  --color-blue-100: #47a5c5;
-
-  /* Gray */
-  --color-gray-100: #eeeeef;
-  --color-gray-200: #e6e9ed;
-  --color-gray-600: #95989c;
-
-  /* Purple */
-  --color-purple-200: #d9ddee;
-  --color-purple-500: #9493db;
-  --color-purple-600: #7164c0;
-  /* Grenn */
-  --color-green-100: #e5f1e3;
-  --color-green-200: #a3cd9e;
-  --color-green-300: #529471;
-  --color-green-400: #35635b;
-
-  
-  /* Font */ --font-edu-sa: "Edu SA Beginner", cursive;
+.transition-theme {
+  @apply transition-colors duration-500;
 }
 
-@layer components {
-  .form-style {
-    @apply rounded-lg dark:bg-richblack-700 p-3 text-black dark:text-white w-full border border-richblack-600 outline-none placeholder:text-richblack-400;
-  }
+
+/* ye is liye hai ki on changing the theme not show harsh change on UI we will add this in theme context and remove it after applying. */
+html.theme-transition {
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
+
+
+ /* Hiding default password hide or show button icons of the browsers  */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-clear-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+

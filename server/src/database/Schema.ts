@@ -1,104 +1,78 @@
-
-import mongoose, { Document } from "mongoose";
-import { Schema } from "mongoose";
-
-export interface IUser {
-  username: string;
-  password: string;
-}
-
-const userSchema = new Schema<IUser>({
-  username: { type: String, required: true, unique: true },
+import mongoose, { Schema } from "mongoose";
+//---------------------  user schema   ---------------------
+const UserSchema = new Schema({
+  emailID: { type: String, unique: true, required: true },
   password: { type: String, required: true },
+  username: { type: String, unique: false },
+  isDemo: { type: Boolean, default: false },
+
+  // TTL logic – only triggers if this field is set
+  expireAt: {
+    type: Date,
+    default: null,
+    expires: 0, // MongoDB auto-deletes only when expireAt is a real date
+  },
 });
 
-const ContentTypes = [
-  "image",
-  "youtube",
-  "article",
-  "audio",
-  "twitter",
-  "docs",
-  "resume"
-]; // extending as per needs
-
-// const contentSchema = new Schema({
-//   title: { type: String, required: true },
-//   link: { type: String, required: true },
-//   type: { type: String, enum: ContentTypes, required: true },
-//   content: { type: String},
-//   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-// });
-
-// const contentSchema = new Schema({
-//   title: { type: String, required: true },
-//   link: { type: String, required: true },
-//   type: { type: String, enum: ContentTypes, required: true },
-//   content: { type: String },
-//   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-//   status: {
-//     type: String,
-//     enum: ["processing", "ready", "failed"],
-//     default: "processing",
-//   },
-//   chromaSource: { type: String },
-// });
-
-const contentSchema = new Schema(
-  {
-    title: { type: String, required: true },
-    link: { type: String, required: true },
-    type: { type: String, enum: ContentTypes, required: true },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    source: { type: String },
-    status: {
-      type: String,
-      enum: ["processing", "ready", "failed"],
-      default: "processing",
-    },
+//----------------------  content schema -------------------------
+const ContentSchema = new Schema({
+  title: String,
+  link: String,
+  type: String,
+  userId: { type: mongoose.Types.ObjectId, required: true },
+  content: String,
+  embedding: { type: [Number], default: undefined },
+  status: {
+    type: String,
+    enum: ["pending", "retrying", "ready", "failed"],
+    default: "pending",
   },
-  { timestamps: true },
-);
+  retryCount: {
+    type: Number,
+    default: 0,
+  },
+});
 
-const chunkSchema = new Schema({
-  contentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Content",
+//------------------------  link table- schema. -------------------------
+const LinkSchema = new Schema({
+  userId: {
+    type: mongoose.Types.ObjectId,
+    ref: "user",
     required: true,
-  },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  source: { type: String, required: true },
+    unique: true,
+  }, //it refers user table..in populating
+  hash: String,
+});
+
+//----------------------  resume schema -------------------------
+const MessageSchema = new Schema({
+  role: { type: String, enum: ["user", "assistant"], required: true },
   content: { type: String, required: true },
-  embedding: { type: [Number], required: true },
-  chunkIndex: { type: Number, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
-const tagSchema = new Schema({
-  title: { type: String, required: true, unique: true },
-});
-
-const linkSchema = new Schema({
-  hash: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-});
-
-userSchema.post(
-  "save",
-  function (error: any, doc: IUser, next: (err?: any) => void) {
-    if (error?.name === "MongoServerError" && error?.code === 11000) {
-      next(new Error("Username already exists"));
-    } else {
-      next(error);
-    }
+const ResumeSchema = new Schema({
+  userId: { type: mongoose.Types.ObjectId, required: true },
+  // raw extracted text from PDF
+  resumeText: { type: String, required: true },
+  // JD
+  jobDescription: { type: String, required: true },
+  jdSummary: { type: String }, // LLM-summarized JD
+  analysis: {
+    skills: [String],
+    experience: String,
+    projects: String,
+    education: String,
+    summary: String,
+    matchScore: Number,
+    missingSkills: [String],
+    suggestions: [String],
   },
-);
+  messages: [MessageSchema],
+  createdAt: { type: Date, default: Date.now },
+});
 
-export const ContentModel = mongoose.model("Content", contentSchema);
-export const ChunkModel = mongoose.model("Chunk", chunkSchema);
-export const TagSchema = mongoose.model("Tag", tagSchema);
-export const UserModel = mongoose.model("User", userSchema);
-export const LinkModel = mongoose.model("Link", linkSchema);
+export const ResumeModel = mongoose.model("resume", ResumeSchema);
+export const linkModel = mongoose.model("link", LinkSchema);
+export const ContentModel = mongoose.model("content", ContentSchema);
+export const UserModel = mongoose.model("user", UserSchema);
