@@ -49,9 +49,9 @@ export const login = async (req: Request, res: Response) => {
         username: findUserGmail.username,
       },
     });
-  } catch (error) {
+  } catch (error:any) {
     res.status(500).json({
-      message: "Error in signining in.",
+      message: error.message,
       Error: error,
     });
   }
@@ -109,7 +109,7 @@ export const signup = async (req: Request, res: Response) => {
       });
     }
     return res.status(500).json({
-      message: "something went wrong, Error in signing up",
+      message: error.message,
     });
   }
 };

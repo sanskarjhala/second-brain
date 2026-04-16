@@ -182,6 +182,20 @@ export function Dashboard() {
               startIcon={<ShareIcons />}
             ></Button>
           </div>
+
+          <div
+            className={`${showResults ? "" : "hidden"} md:flex-none flex justify-center md:gap-2 gap-10  items-center`}
+          >
+            <Button
+              onClick={() => {
+                setShowResults(false)
+                setQuery("")
+              }}
+              variant="secondary"
+              text="Back"
+              // startIcon={<ShareIcons />}
+            ></Button>
+          </div>
         </div>
 
         {/* -------------------------- all the cards are there ------------------ */}

@@ -18,6 +18,7 @@ export function Signin() {
   async function signin(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
     setLoader(true);
+    
 
     try {
       const emailid = emailidref.current?.value.trim().toLocaleLowerCase();
@@ -28,7 +29,7 @@ export function Signin() {
         toast.error("All fields are required.", { id: "signin" });
         return;
       }
-
+      console.log("I AM HERE")
       toast.loading("Signing in...", { id: "signin" });
 
       await userApi.signinUser({ emailID: emailid, password });

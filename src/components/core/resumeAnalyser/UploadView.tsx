@@ -48,6 +48,8 @@ export function UploadView({
     formData.append("jobDescription", jobDescription);
 
     try {
+      console.log(formData)
+      console.log(jobDescription , selectedFile)
       const responseData = await resumeApis.analyzeResume(formData);
 
       if (responseData.error) {

@@ -26,11 +26,12 @@ export function Signup() {
 
       if (!emailid || !username || !password) {
         toast.error("All fields are required.", { id: "signup" });
+        setLoader(false);
         return;
       }
 
       toast.loading("Creating your Second brain...", { id: "signup" });
-
+      console.log("SINGUP FUNCTION CALLED")
       await userApi.signupUser({
         emailID: emailid,
         username,
@@ -81,6 +82,7 @@ export function Signup() {
 
             <div className="py-4">
               <Button
+                type="submit"
                 variant="primary"
                 text={loader ? "signing up ..." : "Sign up"}
                 fullwidth={true}

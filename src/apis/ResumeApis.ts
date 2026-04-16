@@ -12,9 +12,7 @@ export class ResumeApis {
   };
 
   analyzeResume = async (formData: FormData): Promise<any> => {
-    const response = await apiClient.post("/resume/analyze", {
-      data: formData,
-    });
+    const response = await apiClient.post("/resume/analyze", formData);
     return response;
   };
 

@@ -23,12 +23,13 @@ export class UserApis {
   };
 
   signinUser = async ({ emailID, password }: SigninPayload) => {
+    console.log("-------------- SINGIN USER API CALLED --------")
     const response = await apiClient.post("/login", {
       emailID,
       password,
     });
 
-    if(!response || response.data.Token){
+    if(!response || !response.data.Token){
       throw Error
     }
     const Token = response.data.Token;

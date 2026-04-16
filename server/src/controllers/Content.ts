@@ -76,10 +76,8 @@ export const deleteContent = async (req: Request, res: Response) => {
   });
 };
 
-
 const truncate = (text: string, max = 500) =>
   text.length > max ? text.slice(0, max) + "..." : text;
-
 
 export const aiSearch = async (req: Request, res: Response) => {
   try {

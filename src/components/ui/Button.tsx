@@ -9,6 +9,7 @@ interface ButtonProps {
   onClick?: (e?: any) => void;
   fullwidth?: boolean;
   loading?: boolean;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 const variantClasses = {
@@ -27,9 +28,11 @@ export const Button = ({
   startIcon,
   onClick,
   fullwidth,
+  type,
 }: ButtonProps) => {
   return (
     <button
+      type={type}
       onClick={onClick}
       className={
         variantClasses[variant] +

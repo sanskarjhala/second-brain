@@ -11,7 +11,7 @@ export const UserMiddleware = async (
   const header = req.headers.authorization;
   const decoded = jwt.verify(
     header as string,
-    process.env.JWT_SECERET as string,
+    process.env.JWT_SECRET as string,
   );
   if (decoded) {
     if (typeof decoded === "string") {
@@ -21,7 +21,8 @@ export const UserMiddleware = async (
       return;
     }
 
-    req.userId = (decoded as JwtPayload).userId;
+    // req.userId = (decoded as JwtPayload).userId;
+    req.userId = (decoded as JwtPayload).id;
 
     next();
   } else {

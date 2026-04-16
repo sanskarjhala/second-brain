@@ -31,7 +31,7 @@ function parseLLMJson(raw: string) {
 export const analyzeResume = async (req: Request, res: Response) => {
   try {
     const { jobDescription } = req.body;
-
+    console.log(req.file)
     if (!req.file) {
       return res.status(400).json({ error: "Resume PDF is required." });
     }
@@ -81,7 +81,7 @@ ${resumeText}
     const rawAnalysis = await aiService.getLLMResponseWithRetry(analysisPrompt);
     const parsed = parseLLMJson(rawAnalysis);
     const analysis = ResumeAnalysisSchema.parse(parsed);
-
+    console.log("--------------------USER ID--------------" , req.userId)
     // ── Step 4: Save to DB ────────────────────────────────────
     const resumeDoc = await ResumeModel.create({
       userId: req.userId,
