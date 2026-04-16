@@ -1,1 +1,0 @@
-export const BACKEND_URL = "https://second-brain-app-0m37.onrender.com"

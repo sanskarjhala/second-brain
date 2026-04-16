@@ -4,15 +4,16 @@ import { AddIcons } from "../icons/PlusIcon";
 import { ShareIcons } from "../icons/ShareIcon";
 import { useContent } from "../hooks/useContent";
 import { AIResponseCard } from "../components/AIresponse";
-import axios from "axios";
 import React from "react";
-import { DashboardContext } from "./DashboardContext";
-import { BACKEND_URL } from "./config";
+import { DashboardContext } from "../context/DashboardContext";
 import { BeatLoader } from "react-spinners";
 import { SharebrainModal } from "../components/core/SharebrainModal";
 import { DashboardShare } from "../components/dashboardShare";
 import { Card } from "../components/ui/card";
 import AddContentModal from "../components/core/modal";
+import { ContentApis } from "../apis/ContentAPIs";
+
+const contentApis = new ContentApis();
 
 export function Dashboard() {
   const contextDashboard = React.useContext(DashboardContext);
@@ -35,29 +36,19 @@ export function Dashboard() {
   const [shareDashboard, setShareDashboard] = useState(false);
 
   const [isTwitterScriptLoaded, setTwitterScriptLoaded] = useState(false);
-  //const { isSidebarOpen, filter, setShowResults, showResults, query, setQuery } = useOutletContext<OutletContextType>();
 
   const [isOpen, setIsOpen] = useState(false); // Set to false initially in real project -->
   const { contents, loading, fetchcontents, setAllContents } =
     useContent(filter);
 
-  //--------------- for search ---------
-  //const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]); // search result response from the LLM
-  //const [showResults, setShowResults] = useState(false);   //to show search result on the dashboard and hide content
+  const [results, setResults] = useState<any[]>([]);
   const [aiResult, setAiResult] = useState("");
 
   const [loadai, setLoadai] = useState(false);
-  const [typingdone, setTypingdone] = useState(false); //for representing that is the typing of ai result is completed or not???
-
-  // stable callback for TypingText
-  // const handleTypingComplete = useCallback(() => {
-  //   setTypingdone(true);
-  // }, []);
+  const [typingdone, setTypingdone] = useState(false);
 
   async function HandleSearch() {
     if (!query.trim()) return;
-
     //old clear saar
     setResults([]);
     setAiResult("");
@@ -65,22 +56,18 @@ export function Dashboard() {
     setShowResults(true);
     setLoadai(true);
     setTypingdone(false);
-    setShowResults(true); 
+    setShowResults(true);
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BACKEND_URL}/api/v1/ai-answer`, {
-        params: { q: query },
-        headers: { Authorization: token ? token : "" },
-      });
-
+      const res = await contentApis.aiSearch(query);
       console.log("API response:", res.data);
       //  safely extract values
+
       const cards = res.data?.cards || [];
       const aiResponse = res.data?.LLMresponses?.trim();
       setAiResult(
         aiResponse ||
-          "🤖 AI didn’t return a response. Try again or check your saved cards.",
+          "AI didn’t return a response. Try again or check your saved cards.",
       );
 
       setResults(cards);
@@ -99,11 +86,9 @@ export function Dashboard() {
   }
 
   function handleDelete(id: string) {
-    // Update state to remove the deleted card without refetching everything
     setAllContents((prev) => prev.filter((c) => c._id !== id));
   }
 
-  //const username = localStorage.getItem("username") || "guest";    // -- will do something in v2
   const isDemo = localStorage.getItem("isDemo") === "true"; // it's stored as a string
 
   return (
@@ -296,4 +281,3 @@ export function Dashboard() {
     </div>
   );
 }
-

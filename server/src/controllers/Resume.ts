@@ -28,10 +28,6 @@ function parseLLMJson(raw: string) {
   return JSON.parse(cleaned);
 }
 
-//─────────────────────────────────────────────────────────────────
-//  POST /api/v1/resume/analyze
-//  Body: multipart/form-data  { resume: File, jobDescription: string }
-//─────────────────────────────────────────────────────────────────
 export const analyzeResume = async (req: Request, res: Response) => {
   try {
     const { jobDescription } = req.body;
@@ -109,10 +105,6 @@ ${resumeText}
   }
 };
 
-//─────────────────────────────────────────────────────────────────
-//  GET /api/v1/resume
-//  Returns all resume sessions for the logged-in user
-//─────────────────────────────────────────────────────────────────
 export const getUserResumes = async (req: Request, res: Response) => {
   try {
     const resumes = await ResumeModel.find(
@@ -126,10 +118,6 @@ export const getUserResumes = async (req: Request, res: Response) => {
   }
 };
 
-//─────────────────────────────────────────────────────────────────
-//  GET /api/v1/resume/:resumeId
-//  Returns full resume session including chat history
-//─────────────────────────────────────────────────────────────────
 export const getResumeById = async (req: Request, res: Response) => {
   try {
     const resume = await ResumeModel.findOne({
@@ -147,10 +135,6 @@ export const getResumeById = async (req: Request, res: Response) => {
   }
 };
 
-//─────────────────────────────────────────────────────────────────
-//  POST /api/v1/resume/:resumeId/chat
-//  Body: { message: string }
-//─────────────────────────────────────────────────────────────────
 export const chatWithResume = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
@@ -191,7 +175,7 @@ You can help the user:
 4. Be honest, specific, and actionable in your responses.
     `.trim();
 
-    // ── Build conversation history for context ────────────────
+    // Build conversation history for context 
     const conversationHistory = resume.messages
       .slice(-10) // last 10 messages for context window
       .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
@@ -209,7 +193,7 @@ Assistant:
 
     const aiReply = await aiService.getLLMResponseWithRetry(fullPrompt);
 
-    // ── Save both messages to DB ──────────────────────────────
+    // Save both messages to DB
     await ResumeModel.findByIdAndUpdate(resume._id, {
       $push: {
         messages: {
@@ -230,9 +214,6 @@ Assistant:
   }
 };
 
-//─────────────────────────────────────────────────────────────────
-//  DELETE /api/v1/resume/:resumeId
-//─────────────────────────────────────────────────────────────────
 export const deleteResume = async (req: Request, res: Response) => {
   try {
     await ResumeModel.deleteOne({

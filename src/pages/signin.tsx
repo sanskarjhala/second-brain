@@ -1,13 +1,12 @@
 import { useRef, useState } from "react";
 import { Button } from "../components/ui/Button";
 import { Inputcomponent } from "../components/ui/inputbox";
-import axios from "axios";
-import { BACKEND_URL } from "./config";
 import { useNavigate } from "react-router-dom";
 import brainimg from "../assets/brainimg.png";
 import brainimgdark from "../assets/brainimgdark.png";
 import toast from "react-hot-toast";
-//import { BeatLoader } from "react-spinners";
+import { UserApis } from "../apis/UserAPIs";
+const userApi = new UserApis();
 
 export function Signin() {
   const navigate = useNavigate(); //$$$should be inside component
@@ -15,13 +14,6 @@ export function Signin() {
   const emailidref = useRef<HTMLInputElement>(null);
   const passwordref = useRef<HTMLInputElement>(null);
   const [loader, setLoader] = useState(false);
-
-  //#### because we are accessing it in the finally block as well for clearing the timeout so for that we can't define it in the try block only.
-  let stage1: ReturnType<typeof setTimeout>;
-  let stage2: ReturnType<typeof setTimeout>;
-  let stage3: ReturnType<typeof setTimeout>;
-  let stage4: ReturnType<typeof setTimeout>;
-  let stage_5_withRetry: ReturnType<typeof setTimeout>;
 
   async function signin(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
@@ -39,40 +31,9 @@ export function Signin() {
 
       toast.loading("Signing in...", { id: "signin" });
 
-      stage1 = setTimeout(() => {
-        toast.loading("Starting server, please wait...", { id: "signin" });
-      }, 15000);
+      await userApi.signinUser({ emailID: emailid, password });
 
-      stage2 = setTimeout(() => {
-        toast.loading("Connecting to backend...", { id: "signin" });
-      }, 30000);
-
-      stage3 = setTimeout(() => {
-        toast.loading("Loading your second brain...", { id: "signin" });
-      }, 45000);
-
-      stage4 = setTimeout(() => {
-        toast.loading("Final step in progress...", { id: "signin" });
-      }, 60000);
-
-      stage_5_withRetry = setTimeout(() => {
-        toast.error("Still waiting? 🔁 Try refreshing.", {
-          id: "signin",
-        });
-      }, 75000);
-
-      const response = await axios.post(BACKEND_URL + "/api/v1/signin", {
-        emailID: emailid,
-        password,
-      });
-
-      const Token = response.data.Token;
-
-      localStorage.setItem("token", Token);
-      localStorage.setItem("username", response.data.username);
-      localStorage.setItem("isDemo", response.data.isDemo);
-
-      toast.success(response.data.message || "Signed in successfully!", {
+      toast.success("Signed in successfully!", {
         id: "signin",
       });
 
@@ -84,11 +45,6 @@ export function Signin() {
       });
     } finally {
       setLoader(false);
-      clearTimeout(stage1);
-      clearTimeout(stage2);
-      clearTimeout(stage3);
-      clearTimeout(stage4);
-      clearTimeout(stage_5_withRetry);
     }
   }
 

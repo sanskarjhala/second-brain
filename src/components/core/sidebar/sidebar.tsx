@@ -3,7 +3,7 @@ import { FileText, Link2, CircleEllipsis, LogOut, Github } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronsLeft } from "lucide-react";
-import { DashboardContext } from "../../../pages/DashboardContext";
+import { DashboardContext } from "../../../context/DashboardContext";
 import { MenuIcon } from "../../../icons/menu";
 import { SidebarItems } from "./sidebarItems";
 import { TwitterIcon } from "../../../icons/twitterIcon";

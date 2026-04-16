@@ -1,6 +1,6 @@
 // layouts/DashboardLayout.tsx
 import { Outlet } from "react-router-dom";
-import { DashboardProvider } from "../pages/DashboardContext";
+import { DashboardProvider } from "../context/DashboardContext";
 import { Sidebar } from "../components/core/sidebar/sidebar";
 
 export default function DashboardLayout() {

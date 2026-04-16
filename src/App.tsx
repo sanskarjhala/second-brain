@@ -12,6 +12,7 @@ import { Contact } from "./pages/contact";
 
 import { Toaster } from "react-hot-toast";
 import { AnalyticsTracker } from "./components/AnalyticsTracker";
+import ResumeAnalyzer from "./pages/ResumeAnalyser";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           {/* Dashboard layout without Navbar */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="resume" element={<ResumeAnalyzer />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -9,9 +9,9 @@ import { UserMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/add", UserMiddleware, createContent);
+router.post("/content", UserMiddleware, createContent);
 router.get("/content", UserMiddleware, getContent);
 router.delete("/content", UserMiddleware, deleteContent);
-router.get("/search", UserMiddleware, aiSearch);
+router.get("/ai-search", UserMiddleware, aiSearch);
 
 export default router;

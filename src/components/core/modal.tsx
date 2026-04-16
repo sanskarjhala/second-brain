@@ -9,13 +9,13 @@ import {
   Github,
 } from "lucide-react";
 Inputcomponent;
-import axios from "axios";
 import toast from "react-hot-toast";
 import { Inputcomponent } from "../ui/inputbox";
+import { ContentApis } from "../../apis/ContentAPIs";
+const contentApis = new ContentApis();
 
 //  here isOpen is saying is the modal is open like popup or not?
 // onclose for setIsOpen false and close the modal.
-const BACKEND_URL = "";
 export default function AddContentModal({
   isOpen,
   onClose,
@@ -31,34 +31,29 @@ export default function AddContentModal({
 
   //----------------adding content--------------
   const HandleSubmitform = async (e: React.FormEvent) => {
-    e.preventDefault(); //-- it prevent deafault form submission
-
-    //setLoading(true);
+    e.preventDefault();
     const loadingToast = toast.loading("Adding your content...");
-
-    //********  send backend request to add the content   ******* */
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/v1/content`,
-        {
-          title: titleRef.current?.value,
-          link: linkRef.current?.value,
-          type: type,
-        },
-        {
-          headers: {
-            authorization: localStorage.getItem("token"),
-          },
-        },
-      );
+      const title = titleRef.current?.value;
+      const link = linkRef.current?.value;
+
+      if (!title || !link || !type) {
+        toast.error("All fields required");
+        return;
+      }
+
+      const res = await contentApis.AddNewContentAPI({
+        title,
+        link,
+        type,
+      });
 
       if (!res) throw new Error("Failed to add content");
 
       const newContent = res.data.content;
-      //await fetchcontents()   //why await because ..
       setAllContents((prev: any) => [newContent, ...prev]);
-      onClose(); //modal close on form submit...  only automatically close on successfully submit.
-      toast.success("Content added successfully! 🎉", {
+      onClose();
+      toast.success("Content added successfully!", {
         id: loadingToast,
       });
     } catch (error) {
@@ -68,9 +63,6 @@ export default function AddContentModal({
           id: loadingToast,
         },
       );
-    } finally {
-      // setLoading(false);
-      // onClose()    //here also we can add like irrespective of error or sucess in adding content just close modal.
     }
   };
 

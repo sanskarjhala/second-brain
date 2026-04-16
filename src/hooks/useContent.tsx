@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { BACKEND_URL } from "../pages/config";
-import axios from "axios";
+import { ContentApis } from "../apis/ContentAPIs";
+
+const contentApis = new ContentApis();
 
 //creating this custom hook----------------------------
 export const useContent = (filterType = "") => {
@@ -12,11 +13,7 @@ export const useContent = (filterType = "") => {
   const fetchcontents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/v1/content`, {
-        headers: {
-          authorization: localStorage.getItem("token") || "",
-        },
-      });
+      const response = await contentApis.GetContentApi();
 
       setAllContents(response.data.contents || []);
     } catch (e) {

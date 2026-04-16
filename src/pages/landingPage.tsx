@@ -1,20 +1,32 @@
 import heroImage from "../assets/heroImage.png";
 import { useNavigate } from "react-router-dom";
-import { HandleDemo } from "./HandleDemo";
+
 import LandingSection from "../components/landingpage2";
 import heroimagedark4 from "../assets/heroimagedark4.png";
 import { useState } from "react";
 import { ThreeDots } from "react-loader-spinner";
+import { UserApis } from "../apis/UserAPIs";
+
+const userapis = new UserApis();
 
 export default function LandingPage() {
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
 
+  const handleDemo = async () => {
+    setLoader(true);
+    try {
+      await userapis.demoUser();
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Failed to start demo session", error);
+    } finally {
+      setLoader(false);
+    }
+  };
+
   return (
     <div className="md:-mb-8 min-h-screen  text-black dark:text-white dark:bg-darkbg">
-      {/* Header
-      <Navbar/>    */}
-
       {/* Hero */}
       <section
         className="flex flex-col-reverse md:flex-row md:justify-center md:px-8  min-h-screen 
@@ -72,7 +84,7 @@ export default function LandingPage() {
               className="dark:hover:bg-zinc-800 dark:text-white px-8 py-2 lg:px-8 lg:py-4 md:px-4
                    md:py-1 font-semibold text-[15px] text-sm lg:text-lg xl:text-xl  border-purple-600 border-2 hover:bg-purple-200
                     text-purple-900 rounded-md md:rounded-md lg:rounded-lg xl:rounded-xl transition"
-              onClick={() => HandleDemo({ navigate, setLoader })}
+              onClick={() => handleDemo()}
             >
               {loader ? <ThreeDots height={10} color="purple" /> : "Try Demo"}
             </button>

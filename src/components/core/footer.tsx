@@ -54,7 +54,7 @@ export function Footer() {
             href="/support"
             className="inline-block bg-indigo-600 text-white text-sm px-4 py-2 rounded-xl hover:bg-indigo-700 transition"
           >
-            ☕ Support Me
+            Support Me
           </a>
 
           <div className="flex gap-4 mt-6">

@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 import { Button } from "../components/ui/Button";
 import { Inputcomponent } from "../components/ui/inputbox";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { BACKEND_URL } from "./config";
 import brainimg from "../assets/brainimg.png";
 import brainimgdark from "../assets/brainimgdark.png";
 import toast from "react-hot-toast";
+import { UserApis } from "../apis/UserAPIs";
+const userApi = new UserApis();
 
 export function Signup() {
   const UsernameRef = useRef<HTMLInputElement>(null);
@@ -15,22 +15,15 @@ export function Signup() {
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
 
-  //#### because we are accessing it in the finally block as well for clearing the timeout so for that we can't define it in the try block only.
-  let stage1: ReturnType<typeof setTimeout>;
-  let stage2: ReturnType<typeof setTimeout>;
-  let stage3: ReturnType<typeof setTimeout>;
-  let stage4: ReturnType<typeof setTimeout>;
-  let stage_5_withRetry: ReturnType<typeof setTimeout>;
-
   async function signup(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.preventDefault(); //$$$$ because --> triggers a default submit, which reloads the page unless explicitly prevented.
+    e.preventDefault();
     setLoader(true);
-    try {
-      const username = UsernameRef.current?.value;
-      const password = PasswordRef.current?.value.trim();
-      const emailid = EmailRef.current?.value.trim().toLocaleLowerCase();
 
-      //checking not submit the form empty.
+    try {
+      const username = UsernameRef.current?.value.trim() || "";
+      const password = PasswordRef.current?.value.trim() || "";
+      const emailid = EmailRef.current?.value.trim().toLowerCase() || "";
+
       if (!emailid || !username || !password) {
         toast.error("All fields are required.", { id: "signup" });
         return;
@@ -38,52 +31,22 @@ export function Signup() {
 
       toast.loading("Creating your Second brain...", { id: "signup" });
 
-      stage1 = setTimeout(() => {
-        toast.loading("Starting server, please wait...", { id: "signup" });
-      }, 10000);
-
-      stage2 = setTimeout(() => {
-        toast.loading("Connecting to backend...", { id: "signup" });
-      }, 30000);
-
-      stage3 = setTimeout(() => {
-        toast.loading("Setting up your account...", { id: "signup" });
-      }, 45000);
-
-      stage4 = setTimeout(() => {
-        toast.loading("Final step in progress...", { id: "signup" });
-      }, 60000);
-
-      stage_5_withRetry = setTimeout(() => {
-        toast.error("Still waiting? 🔁 Try refreshing.", {
-          id: "signup",
-        });
-      }, 75000);
-
-      //sending post request --> to backend
-      await axios.post(BACKEND_URL + "/api/v1/signup", {
+      await userApi.signupUser({
         emailID: emailid,
-        password,
         username,
+        password,
+      });
+
+      toast.success("Successfully created account, now sign in.", {
+        id: "signup",
       });
 
       navigate("/signin");
-
-      toast.success("Successfully created account, Now signin", {
-        id: "signup",
-      });
-    } catch (error) {
-      console.log("signup error" + error);
-      toast.error("signup error", {
-        id: "signup",
-      });
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Signup failed";
+      toast.error(message, { id: "signup" });
     } finally {
       setLoader(false);
-      clearTimeout(stage1);
-      clearTimeout(stage2);
-      clearTimeout(stage3);
-      clearTimeout(stage4);
-      clearTimeout(stage_5_withRetry);
     }
   }
 
