@@ -1,4 +1,4 @@
-# 🧠 Second Brain
+# Second Brain
 
 🌐 Live Demo 👉 https://sanskarjhala-second-brain.vercel.app/
 
@@ -10,7 +10,8 @@ It doesn’t just store information — it understands context and helps you **f
 
 ## 🚀 Features
 
-### 🧠 Second Brain (Core)
+### Second Brain (Core)
+
 - Save anything — notes, links, articles, ideas, etc.
 - Semantic search (search by meaning, not keywords)
 - AI-powered summaries of saved content
@@ -20,7 +21,8 @@ It doesn’t just store information — it understands context and helps you **f
 
 ---
 
-### 🤖 Resume Analyzer 
+### Resume Analyzer
+
 - Upload resume (PDF) + job description
 - Get **ATS match score (0–100%)**
 - Extract:
@@ -36,26 +38,32 @@ It doesn’t just store information — it understands context and helps you **f
 
 ## 📂 Example Use Cases
 
-### 🍽 Recipes
+### Recipes
+
 Save recipes like “chocolate cake” → search “easy desserts” → get relevant results instantly.
 
-### 📚 Study Notes
+### Study Notes
+
 Save “React hooks” → search “React tips” → get related notes without exact keywords.
 
-### 🏏 Sports
+### Sports
+
 Save match stats → search “latest cricket news” → get relevant saved content.
 
-### 🎵 Music
+### Music
+
 Save songs → search “uplifting songs” → retrieve your collection intelligently.
 
-### ✈️ Travel / Ideas
+### Travel / Ideas
+
 Save plans → search “weekend trips” → instantly retrieve relevant ideas.
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
-### 🔍 Semantic Search (Second Brain)
+### Semantic Search (Second Brain)
+
 1. Content is converted into **embeddings**
 2. Stored in database
 3. User query → converted to embedding
@@ -64,7 +72,7 @@ Save plans → search “weekend trips” → instantly retrieve relevant ideas.
 
 ---
 
-### 🤖 Resume Analyzer Pipeline
+### Resume Analyzer Pipeline
 
 1. **PDF Parsing**
    - Extract text from resume using `pdf-parse`
@@ -95,9 +103,10 @@ Save plans → search “weekend trips” → instantly retrieve relevant ideas.
 
 ---
 
-## 💬 Chat with Your Resume
+## Chat with Your Resume
 
 Ask things like:
+
 - “What skills am I missing?”
 - “Improve my resume”
 - “Write a cover letter”
@@ -108,31 +117,35 @@ Ask things like:
 
 ## 🛠 Tech Stack
 
-### 📍 Frontend
+### Frontend
+
 - React
 - TypeScript
 - React Router
 - Axios
 - Tailwind CSS
 
-### 📍 Backend
+### Backend
+
 - Node.js + Express
 - TypeScript
 - MongoDB Atlas
 - JWT Authentication
 
-### 🤖 AI
+### AI
+
 - GitHub AI Models (GPT-4o-mini)
 - Embeddings: `text-embedding-3-small`
 - LLM-based structured output
 
-### 🚀 Deployment
+### Deployment
+
 - Vercel (Frontend)
 - Render (Backend)
 
 ---
 
-## 🧠 AI Architecture
+## AI Architecture
 
 - LLM for:
   - Resume analysis
@@ -157,7 +170,7 @@ Ask things like:
 
 ---
 
-## 🚀 Future Improvements
+## Future Improvements
 
 - **RAG-based Chat with Saved Content**  
   Enable users to chat with their stored content using embeddings + LLM
@@ -171,10 +184,6 @@ Ask things like:
 - **Advanced Resume Scoring**  
   Use embedding similarity for better ATS accuracy
 
----
-
-## 📌 Author
-  
 ---
 
 ## ⭐ If you like this project
