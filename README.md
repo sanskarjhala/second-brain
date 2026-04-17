@@ -1,70 +1,182 @@
-#  Second Brain
+# 🧠 Second Brain
 
-🌐 Check out the live application here 👉 [https://www.mysecondbrain.live](https://www.mysecondbrain.live)
+🌐 Live Demo 👉 https://sanskarjhala-second-brain.vercel.app/
 
+A smart, AI-powered application that helps you **save, organize, and retrieve knowledge** — like a digital extension of your brain.
 
-A smart, AI-powered app that helps you **save, organize, and find ideas, notes, links, and more** — like a digital extension of your brain! It doesn’t just store information; it understands context and helps you retrieve what you need quickly. 
+It doesn’t just store information — it understands context and helps you **find what you need instantly using AI**.
 
 ---
 
 ## 🚀 Features
 
-- ✅ Save anything — notes, links, articles, sports highlights, songs, plans, and more  
-- ✅ Search by meaning, not just keywords — powered by AI embeddings  
-- ✅ Get summaries of saved content like a chatbot (LLM-style response)  
-- ✅ Easy-to-use interface with fast navigation  
-- ✅ Responsive design for both mobile and desktop  
-- ✅ Secure user authentication with JWT  
-- ✅ Cloud-based storage with MongoDB Atlas
+### 🧠 Second Brain (Core)
+- Save anything — notes, links, articles, ideas, etc.
+- Semantic search (search by meaning, not keywords)
+- AI-powered summaries of saved content
+- Fast and responsive UI
+- JWT-based authentication
+- Cloud storage using MongoDB Atlas
+
+---
+
+### 🤖 Resume Analyzer 
+- Upload resume (PDF) + job description
+- Get **ATS match score (0–100%)**
+- Extract:
+  - Skills
+  - Experience
+  - Projects
+  - Education
+- Identify **missing skills**
+- Get **actionable suggestions**
+- Chat with AI about your resume
 
 ---
 
 ## 📂 Example Use Cases
 
 ### 🍽 Recipes
-You save recipes like “chocolate cake,” “pasta salad,” or “quick snacks.” Later, when you search “easy desserts,” it shows all the recipes you saved — even if you didn’t type “chocolate cake” exactly!
+Save recipes like “chocolate cake” → search “easy desserts” → get relevant results instantly.
 
-### 📚 Work or Study Notes
-You write notes like “React hooks best practices” or “exam dates for next week.” Later, when you search “React tips” or “important dates,” it finds your notes instantly without scrolling through everything!
+### 📚 Study Notes
+Save “React hooks” → search “React tips” → get related notes without exact keywords.
 
-### 🏏 Sports Lovers
-You save articles or stats like “Asia Cup squad,” “Siraj’s 6-wicket haul,” or “cricket world cup finals.” When you search “latest cricket news,” it brings up related content you saved before — even if you don’t remember the exact title!
+### 🏏 Sports
+Save match stats → search “latest cricket news” → get relevant saved content.
 
-### 🎵 Music Lovers
-You keep track of songs like “Born to Shine” or “Ishq Di.” Later, when you search “uplifting Punjabi songs,” it shows your favorites without needing the exact title!
+### 🎵 Music
+Save songs → search “uplifting songs” → retrieve your collection intelligently.
 
-### ✈️ Travel or Hobbies
-You save travel plans, packing lists, or hobby ideas like “trip to Manali” or “guitar practice schedule.” Later, you search “weekend trips” or “music practice” and it quickly brings up what you need!
+### ✈️ Travel / Ideas
+Save plans → search “weekend trips” → instantly retrieve relevant ideas.
 
-### 💡 Smart Summaries
-The AI doesn’t just find your saved notes — it understands the context and even summarizes them for you, just like a chatbot! So, if you search “React tips,” it can give you a short summary with key points, helping you review faster without reading everything.
+---
+
+## ⚙️ How It Works
+
+### 🔍 Semantic Search (Second Brain)
+1. Content is converted into **embeddings**
+2. Stored in database
+3. User query → converted to embedding
+4. Similarity search → retrieves relevant content
+5. LLM generates contextual answer
+
+---
+
+### 🤖 Resume Analyzer Pipeline
+
+1. **PDF Parsing**
+   - Extract text from resume using `pdf-parse`
+
+2. **Job Description Processing**
+   - Summarized using LLM
+
+3. **AI Analysis**
+   - Resume + JD → sent to LLM
+   - Returns structured JSON:
+     - skills
+     - matchScore
+     - missingSkills
+     - suggestions
+
+4. **Validation**
+   - Output validated using **Zod schema**
+
+5. **Storage**
+   - Stored in MongoDB with user session
+
+6. **Chat System**
+   - Uses:
+     - Resume content
+     - Job description
+     - Previous chat messages
+   - Generates contextual responses
+
+---
+
+## 💬 Chat with Your Resume
+
+Ask things like:
+- “What skills am I missing?”
+- “Improve my resume”
+- “Write a cover letter”
+
+👉 AI responds using your resume + job context
 
 ---
 
 ## 🛠 Tech Stack
 
 ### 📍 Frontend
-- **React**e  
-- **TypeScript**   
-- **React Router** – for smooth navigation without full page reloads  
-- **Axios** – for API requests  
-- **Tailwind CSS** – for styling and making the app responsive across devices
+- React
+- TypeScript
+- React Router
+- Axios
+- Tailwind CSS
 
 ### 📍 Backend
-- **Node.js with Express** – for creating API routes  
-- **TypeScript** 
-- **MongoDB Atlas** – cloud database for storing contents  
-- **JWT (JSON Web Tokens)** – for secure user authentication
+- Node.js + Express
+- TypeScript
+- MongoDB Atlas
+- JWT Authentication
 
-### 🤖 AI Features
-- **GitHub Marketplace AI model** – for embeddings and vector search  
-- Provides summaries and relevant content by understanding context, like an LLM response
+### 🤖 AI
+- GitHub AI Models (GPT-4o-mini)
+- Embeddings: `text-embedding-3-small`
+- LLM-based structured output
 
 ### 🚀 Deployment
-- **Vercel** – for frontend hosting  
-- **Custom domain** – for professional access  
-- **Railway (or similar)** – for backend deployment
+- Vercel (Frontend)
+- Render (Backend)
 
 ---
 
+## 🧠 AI Architecture
 
+- LLM for:
+  - Resume analysis
+  - Chat responses
+  - Summarization
+
+- Embeddings for:
+  - Semantic search
+  - Context retrieval
+
+- Retry logic for reliability
+
+---
+
+## 🔥 Key Highlights
+
+- Full-stack AI application
+- Real-world use case (ATS Resume Analyzer)
+- Structured LLM outputs (Zod validation)
+- Context-aware AI chat system
+- Scalable architecture
+
+---
+
+## 🚀 Future Improvements
+
+- **RAG-based Chat with Saved Content**  
+  Enable users to chat with their stored content using embeddings + LLM
+
+- **Vector DB Optimization**  
+  Integrate FAISS/Chroma for faster search
+
+- **Multi-format Support for interaction with Content**  
+  Support PDFs, audio, videos, and web content
+
+- **Advanced Resume Scoring**  
+  Use embedding similarity for better ATS accuracy
+
+---
+
+## 📌 Author
+  
+---
+
+## ⭐ If you like this project
+
+Give it a ⭐ on GitHub and share feedback!
