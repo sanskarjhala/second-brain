@@ -82,6 +82,7 @@ const truncate = (text: string, max = 500) =>
 export const aiSearch = async (req: Request, res: Response) => {
   try {
     const searchQuery = req.query.q as string;
+
     if (!searchQuery) {
       return res.status(400).json({ error: "Missing query" });
     }
@@ -89,6 +90,7 @@ export const aiSearch = async (req: Request, res: Response) => {
     const queryEmbedding = await aiService.getEmbedding(searchQuery);
 
     let vectorResults: any[] = [];
+
     try {
       vectorResults = await ContentModel.aggregate([
         {
@@ -98,7 +100,9 @@ export const aiSearch = async (req: Request, res: Response) => {
             queryVector: queryEmbedding,
             numCandidates: 100,
             limit: 5,
-            filter: { userId: new mongoose.Types.ObjectId(req.userId) },
+            filter: {
+              userId: new mongoose.Types.ObjectId(req.userId),
+            },
           },
         },
         {
@@ -114,16 +118,17 @@ export const aiSearch = async (req: Request, res: Response) => {
     } catch (dbError: any) {
       console.error("Vector search failed:", dbError.message || dbError);
     }
-
+    console.log("--------------------VECTOR RESULT--------------------" , vectorResults)
     vectorResults.sort((a, b) => b._vectorScore - a._vectorScore);
 
     const threshold = parseFloat(req.query.threshold as string) || 0.65;
+
     let relevantResults = vectorResults.filter(
-      (r) => r._vectorScore >= threshold,
+      (item) => item._vectorScore >= threshold,
     );
 
     if (relevantResults.length === 0) {
-      console.warn(" No vector matches, falling back to text search...");
+      console.warn("No vector matches, falling back to text search...");
 
       const textResults = await ContentModel.find(
         {
@@ -138,56 +143,69 @@ export const aiSearch = async (req: Request, res: Response) => {
 
       relevantResults = textResults.map((doc: any) => ({
         ...doc.toObject(),
-        _vectorScore: 0.65,
+        _vectorScore: 0.45,
       }));
     }
 
-    let prompt: string;
+    const topCards = relevantResults.slice(0, 3);
+
+    let shortSummary = "No matching cards found.";
     let cards: any[] = [];
 
-    if (relevantResults.length > 0) {
-      const context = relevantResults
-        .slice(0, 3)
+    if (topCards.length > 0) {
+      const context = topCards
         .map(
           (item, idx) =>
-            `Card ${idx + 1}: ${item.title}\n${truncate(item.content)}`,
+            `Card ${idx + 1}
+Title: ${item.title}
+Content: ${truncate(item.content, 200)}`,
         )
         .join("\n\n");
 
-      prompt = `
-You are an AI assistant for a Second Brain app.
-User's question: "${searchQuery}"
+      const prompt = `
+You are helping inside a Second Brain app.
 
-Here are the most relevant saved notes/cards:
+User search query: "${searchQuery}"
+
+Below are the top matching saved cards:
 ${context}
 
-Answer the question using the saved content.
-At the end, also mention: "I've included your saved cards below."
+Your task:
+- Summarize these cards in exactly ${topCards.length} bullet points
+- Write only 1 bullet point per card
+- Keep each bullet point very short
+- Maximum 12 words per bullet
+- Do not add introduction
+- Do not add conclusion
+- Do not explain extra
+- Output only bullet points
+
+Example output:
+- React card explains useEffect for side effects
+- MongoDB card covers vector search basics
+- Resume card mentions ATS score logic
       `.trim();
 
-      cards = relevantResults.map((doc) => ({
+      const llmResponse = await aiService.getLLMResponseWithRetry(prompt);
+      shortSummary = llmResponse?.trim() || "No short summary generated.";
+
+      cards = topCards.map((doc) => ({
         _id: doc._id,
         title: doc.title,
         link: doc.link,
         type: doc.type,
         score: doc._vectorScore?.toFixed?.(3) ?? "N/A",
       }));
-    } else {
-      prompt = `
-User's question: "${searchQuery}"
-
-You have no saved content for this topic.
-Answer the question from your own knowledge.
-Also mention: "No saved cards matched your search."
-      `.trim();
     }
 
-    const llmResponse = await aiService.getLLMResponseWithRetry(prompt);
-    const safeResponse = llmResponse?.trim() || "No AI answer found ";
-
-    res.json({ LLMresponses: safeResponse, cards });
+    return res.json({
+      summary: shortSummary,
+      cards,
+    });
   } catch (error: any) {
     console.error("aiSearch error:", error.message || error);
-    res.status(500).json({ error: error.message || "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: error.message || "Internal server error" });
   }
 };

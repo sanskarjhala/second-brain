@@ -39,15 +39,20 @@ type SessionData = {
   jdSummary: string;
   messages: ChatMessage[];
   createdAt: string;
+  matchScore: any;
 };
 
 function AnalysisTab({
   analysis,
   jdSummary,
 }: {
-  analysis: Analysis;
-  jdSummary: string;
+  analysis?: Analysis;
+  jdSummary?: string;
 }) {
+  if (!analysis) {
+    return <div className="p-5">Loading...</div>;
+  }
+
   let matchLabel = "Weak match";
   if (analysis.matchScore >= 70) matchLabel = "Strong match";
   else if (analysis.matchScore >= 45) matchLabel = "Moderate match";
@@ -347,8 +352,8 @@ function SessionView({ session }: { session: SessionData }) {
       <div className="flex-1 overflow-hidden">
         {activeTab === "analysis" ? (
           <AnalysisTab
-            analysis={session.analysis}
-            jdSummary={session.jdSummary}
+            analysis={session?.analysis}
+            jdSummary={session?.jdSummary}
           />
         ) : (
           <ChatTab
@@ -394,9 +399,11 @@ export default function ResumeAnalyzer() {
         analysis: data.resume.analysis,
         jdSummary: data.resume.jdSummary,
         messages: data.resume.messages || [],
+        matchScore: data.resume.matchScore,
         createdAt: data.resume.createdAt,
       };
-
+      console.log("------------------- Session ----------------")
+      console.log(session)
       setActiveSession(session);
     } catch {
       setCurrentView("upload");
@@ -412,6 +419,7 @@ export default function ResumeAnalyzer() {
       jdSummary: data.jdSummary,
       messages: [],
       createdAt: new Date().toISOString(),
+      matchScore: data.matchScore,
     };
 
     setActiveSession(newSession);

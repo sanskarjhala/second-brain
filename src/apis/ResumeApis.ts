@@ -3,8 +3,6 @@ import { apiClient } from "./apiClient";
 export class ResumeApis {
   getAllResumes = async (): Promise<any> => {
     const response = await apiClient.get("/resume");
-    console.log("------------------------- RESUME API ----------------")
-    console.log(response)
     return response;
   };
 
@@ -15,7 +13,7 @@ export class ResumeApis {
 
   analyzeResume = async (formData: FormData): Promise<any> => {
     const response = await apiClient.post("/resume/analyze", formData);
-    return response;
+    return response.data;
   };
 
   sendChatMessage = async (resumeId: string, message: string): Promise<any> => {

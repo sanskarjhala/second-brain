@@ -23,7 +23,6 @@ export class UserApis {
   };
 
   signinUser = async ({ emailID, password }: SigninPayload) => {
-    console.log("-------------- SINGIN USER API CALLED --------")
     const response = await apiClient.post("/login", {
       emailID,
       password,

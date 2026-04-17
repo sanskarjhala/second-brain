@@ -52,7 +52,6 @@ export function UploadView({
       if (responseData.error) {
         throw new Error(responseData.error);
       }
-
       onAnalyzed(responseData);
     } catch (err: any) {
       setErrorMessage(err.message || "Something went wrong.");
@@ -90,13 +89,13 @@ export function UploadView({
               handleFileSelected(e.dataTransfer.files[0]);
             }}
             className={`mt-3 rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer
-  ${
-    isDragging
-      ? "border-purple-500 bg-purple-100/80 dark:bg-purple-500/10 dark:border-purple-400 scale-[1.01]"
-      : selectedFile
-        ? "border-emerald-400 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10"
-        : "border-slate-300 bg-slate-50 hover:border-purple-400 hover:bg-purple-50 dark:border-white/10 dark:bg-[#101014]"
-  }`}
+              ${
+                isDragging
+                  ? "border-purple-500 bg-purple-100/80 dark:bg-purple-500/10 dark:border-purple-400 scale-[1.01]"
+                  : selectedFile
+                    ? "border-emerald-400 bg-emerald-50 dark:border-emerald-500/60 dark:bg-emerald-500/10"
+                    : "border-slate-300 bg-slate-50 hover:border-purple-400 hover:bg-purple-50 dark:border-white/10 dark:bg-[#101014]"
+              }`}
           >
             <input
               ref={fileInputRef}

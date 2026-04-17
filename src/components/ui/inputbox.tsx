@@ -7,7 +7,11 @@ interface InputProps {
   type?: string;
 }
 
-export function Inputcomponent({ placeholder, reference, type = "text" }: InputProps) {
+export function Inputcomponent({
+  placeholder,
+  reference,
+  type = "text",
+}: InputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -16,7 +20,7 @@ export function Inputcomponent({ placeholder, reference, type = "text" }: InputP
         ref={reference}
         type={type === "password" ? (showPassword ? "text" : "password") : type}
         placeholder={placeholder}
-        className="w-full px-4 py-2 border dark:bg-[#191919] dark:text-white border-[#E0E0E0] rounded focus:outline-none focus:ring-1 focus:ring-[#867eb5] pr-10" 
+        className="w-full px-4 py-2 border dark:bg-[#191919] dark:text-white border-[#E0E0E0] rounded focus:outline-none focus:ring-1 focus:ring-[#867eb5] pr-10"
         // Added pr-10 to make space for the icon on the right
       />
 

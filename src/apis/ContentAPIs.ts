@@ -11,9 +11,11 @@ export class ContentApis {
     const response = await apiClient.get("/ai-search", {
       params: { q: query },
     });
+    console.log(response)
     if (!response) {
       throw Error("ERROR IN AI SEACRH API CALL");
     }
+    console.log("--------------------------",response)
     return response;
   };
 
@@ -25,14 +27,12 @@ export class ContentApis {
 
   AddNewContentAPI = async (data: AddContentPayload): Promise<any> => {
     const response = await apiClient.post("/content", data);
-    return response.data;
+    return response;
   };
 
-  DeleteContent = async (id: string): Promise<any> => {
+  DeleteContent = async (contentId: string): Promise<any> => {
     const response = await apiClient.delete("/content", {
-      data: {
-        contentId: id,
-      },
+      data : {contentId}
     });
     if (!response) {
       throw Error;

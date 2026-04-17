@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useRef } from "react";
 import { CircleEllipsis, Github, Link2 } from "lucide-react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { YtIcons } from "../../icons/ytIcons";
 import { DocsIcon } from "../../icons/docsIcons";
@@ -9,8 +8,9 @@ import { TwitterIcon } from "../../icons/twitterIcon";
 import { ShareIcons } from "../../icons/ShareIcon";
 import { DeleteIcons } from "../../icons/deleteIcons";
 import GitHubCard from "./githubCard";
+import { ContentApis } from "../../apis/ContentAPIs";
 
-const BACKEND_URL = "";
+const contentApi = new ContentApis();
 
 interface Cardprops {
   id: string;
@@ -120,15 +120,9 @@ export function Card({
   //------------------------****  Deleting the card   ****-------------------------
   async function DeletingCard() {
     try {
-      await axios.delete(`${BACKEND_URL}/api/v1/content`, {
-        data: { contentId: id },
-        headers: {
-          authorization: localStorage.getItem("token"),
-        },
-      });
-
+      await contentApi.DeleteContent(id);
       toast.success("Card deleted!");
-      onDelete(id); // update frontend dashboard
+      onDelete(id);
     } catch (error) {
       console.error("Error deleting card:", error);
       toast.error("Error deleting content");

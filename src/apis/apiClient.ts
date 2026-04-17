@@ -1,7 +1,6 @@
 import axios from "axios";
-// const apiURl = import.meta.env.BACKEND_URL;
-const apiURl = "http://localhost:8080";
-
+// const apiURl = "http://localhost:8080";
+const apiURl = "https://second-brain-8meb.onrender.com";
 export const apiClient = axios.create({
   baseURL: `${apiURl}/api/v1`,
 });

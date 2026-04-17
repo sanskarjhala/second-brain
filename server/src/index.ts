@@ -18,6 +18,10 @@ app.use("/api/v1", contentRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", resumeRoutes);
 
+app.get("/api/v1/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is runnnin at port ${process.env.PORT}`);
 });

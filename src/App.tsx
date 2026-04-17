@@ -9,12 +9,30 @@ import { ThemeProvider } from "./context/themeContext";
 import { SupportPage } from "./pages/supportme";
 import { About } from "./pages/about";
 import { Contact } from "./pages/contact";
-
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { AnalyticsTracker } from "./components/AnalyticsTracker";
 import ResumeAnalyzer from "./pages/ResumeAnalyser";
+import { useEffect } from "react";
+import { serverwakeup } from "./apis/Serverwakeup";
 
 function App() {
+  useEffect(() => {
+    const wakeUp = async () => {
+      const toastId = "server-wakeup";
+
+      try {
+        toast.loading("Waking up server...", { id: toastId });
+
+        await serverwakeup();
+
+        toast.success("Server is ready 🚀", { id: toastId });
+      } catch {
+        toast.error("Server wake-up failed", { id: toastId });
+      }
+    };
+
+    wakeUp();
+  }, []);
   return (
     //  here theme is provided so it works on both pages landing+dashboard
     <ThemeProvider>

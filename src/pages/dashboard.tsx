@@ -64,10 +64,11 @@ export function Dashboard() {
       //  safely extract values
 
       const cards = res.data?.cards || [];
-      const aiResponse = res.data?.LLMresponses?.trim();
+      console.log("cards " , cards)
+      console.log("Summary " , res.data?.summary?.trim())
+      const aiResponse = res.data?.summary?.trim();
       setAiResult(
-        aiResponse ||
-          "AI didn’t return a response. Try again or check your saved cards.",
+        aiResponse,
       );
 
       setResults(cards);
