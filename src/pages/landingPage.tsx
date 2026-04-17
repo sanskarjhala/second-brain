@@ -45,7 +45,7 @@ export default function LandingPage() {
                   AI-Powered
                 </span>
                 {/* only for mobile view + sm */}
-                <span className="md:hidden block text-purple-600 font-extrabold md:ml-2 ml-2">
+                <span className="md:hidden block text-blue-600 font-extrabold md:ml-2 ml-2">
                   Search
                 </span>
               </span>

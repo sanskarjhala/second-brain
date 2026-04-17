@@ -16,53 +16,61 @@ export function HistorySidebar({
   loading: boolean;
 }) {
   return (
-    <aside className="ml-14 w-60 shrink-0 bg-[#0e0e0e] border-r border-[#1c1c1c] flex flex-col h-full">
+    <aside className="pt-6 ml-14 w-64 shrink-0 h-full flex flex-col border-r border-slate-200 bg-white/80 text-slate-900 backdrop-blur-sm dark:border-white/10 dark:bg-[#0f1117] dark:text-white">
       {/* New analysis button */}
-      <div className="p-3 border-b border-[#1c1c1c]">
+      <div className="border-b border-slate-200 p-3 dark:border-white/10">
         <button
           onClick={onNew}
-          className="w-full py-2.5 rounded-lg text-sm font-semibold bg-custom-gradient text-white hover:opacity-90 active:scale-[0.98] transition-all"
+          className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-500 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.01] hover:opacity-95 active:scale-[0.99]"
         >
           + New analysis
         </button>
       </div>
 
-      {/* "History" label */}
-      <div className="px-2 pt-3 pb-1">
-        <p className="text-[10px] uppercase tracking-widest text-[#333] font-semibold px-2">
+      {/* History label */}
+      <div className="px-3 pt-4 pb-2">
+        <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
           History
         </p>
       </div>
 
-      {/* List of past resumes */}
+      {/* Resume list */}
       <div className="flex-1 overflow-y-auto px-2 pb-4">
-        {/* Show skeleton loaders while fetching */}
         {loading &&
           [1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-14 rounded-lg bg-[#161616] animate-pulse mb-2"
+              className="mb-2 h-16 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-white/5 dark:bg-white/5"
             />
           ))}
 
-        {/* Empty state */}
         {!loading && resumes.length === 0 && (
-          <p className="text-xs text-[#333] px-3 py-4">No analyses yet.</p>
+          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center dark:border-white/10 dark:bg-white/[0.03]">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+              No analyses yet
+            </p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+              Start a new resume analysis to see history here.
+            </p>
+          </div>
         )}
 
-        {/* Render each resume item */}
         {!loading &&
           resumes.map((resume) => {
-            const isActive = activeId === resume._id;
+            const isActive = activeId === resume?._id;
             const score = resume.analysis?.matchScore ?? 0;
 
-            // Pick color for the score badge
-            let scoreClasses = "text-red-400 bg-red-900/30";
-            if (score >= 70) scoreClasses = "text-purple-300 bg-purple-900/30";
-            else if (score >= 45)
-              scoreClasses = "text-amber-400 bg-amber-900/30";
+            let scoreClasses =
+              "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300";
 
-            // Truncate the summary to 42 characters
+            if (score >= 70) {
+              scoreClasses =
+                "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
+            } else if (score >= 45) {
+              scoreClasses =
+                "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300";
+            }
+
             const shortSummary = resume.analysis?.summary
               ? resume.analysis.summary.slice(0, 42) + "…"
               : "Resume session";
@@ -71,37 +79,45 @@ export function HistorySidebar({
               <div
                 key={resume._id}
                 onClick={() => onSelect(resume._id)}
-                className={`group relative flex flex-col gap-1 px-3 py-2.5 rounded-lg cursor-pointer mb-1 transition-all
+                className={`group relative mb-2 cursor-pointer rounded-xl border px-3 py-3 transition-all duration-200
                   ${
                     isActive
-                      ? "bg-purple-900/20 border border-purple-800/30"
-                      : "hover:bg-[#161616] border border-transparent"
+                      ? "border-purple-200 bg-purple-50 shadow-sm dark:border-purple-500/30 dark:bg-purple-500/10"
+                      : "border-transparent bg-transparent hover:border-slate-200 hover:bg-slate-50 dark:hover:border-white/10 dark:hover:bg-white/[0.04]"
                   }`}
               >
-                {/* Summary text */}
-                <p className="text-xs font-medium text-[#ccc] truncate pr-5 leading-snug">
+                {/* Summary */}
+                <p
+                  className={`truncate pr-6 text-sm font-medium leading-snug
+                    ${
+                      isActive
+                        ? "text-purple-700 dark:text-purple-200"
+                        : "text-slate-700 dark:text-slate-200"
+                    }`}
+                >
                   {shortSummary}
                 </p>
 
-                {/* Score badge + date */}
-                <div className="flex items-center gap-2">
+                {/* Score + date */}
+                <div className="mt-2 flex items-center gap-2">
                   <span
-                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${scoreClasses}`}
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${scoreClasses}`}
                   >
                     {resume.analysis?.matchScore ?? "--"}%
                   </span>
-                  <span className="text-[10px] text-[#3a3a3a]">
+
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                     {new Date(resume.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
-                {/* Delete button (only visible on hover) */}
+                {/* Delete */}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // don't trigger the parent onClick
+                    e.stopPropagation();
                     onDelete(resume._id);
                   }}
-                  className="absolute right-2 top-2.5 opacity-0 group-hover:opacity-100 text-[#3a3a3a] hover:text-red-500 transition-all text-xs leading-none p-0.5"
+                  className="absolute right-2 top-2 rounded-md p-1 text-xs text-slate-400 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:text-slate-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                 >
                   ✕
                 </button>

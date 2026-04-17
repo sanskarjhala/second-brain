@@ -93,12 +93,12 @@ export function Dashboard() {
 
   return (
     <div
-      className={`transition-all duration-300 ease-linear  ${
-        isSidebarOpen ? "md:ml-64" : "md:ml-16"
+      className={`transition-all duration-300 ease-linear ${
+        isSidebarOpen ? "md:pl-64" : "md:pl-16"
       } `}
     >
       <div
-        className={`${isSidebarOpen ? `md:pr-6 md:pl-2` : ""}  pl-2 md:py-6 py-10  min-h-screen transition-all duration-300 ease-linear `}
+        className={`mr-20 md:py-6 py-10  min-h-screen transition-all duration-300 ease-linear `}
       >
         {/* ----------- ye add content modal ka hai  ------------- */}
         {isOpen && (

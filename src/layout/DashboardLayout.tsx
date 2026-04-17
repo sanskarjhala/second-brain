@@ -6,9 +6,9 @@ import { Sidebar } from "../components/core/sidebar/sidebar";
 export default function DashboardLayout() {
   return (
     <DashboardProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen overflow-hidden">
         <Sidebar />
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-hidden p-4">
           <Outlet />
         </div>
       </div>

@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function SidebarItems({
   text,
@@ -13,11 +14,17 @@ export function SidebarItems({
   setFilter: (value: string) => void;
   isActive: boolean;
 }) {
+  const navigate = useNavigate();
+
+  function handleClick() {
+    setFilter(text);
+    navigate("/dashboard");
+  }
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => setFilter(text)}
+      onClick={() => handleClick()}
       onKeyDown={(e) => e.key === "Enter" && setFilter(text)}
       className={`flex gap-6  hover:bg-purple-100 dark:hover:bg-[#282828] rounded-md transition-all duration-300 ease-linear 
                                     whitespace-nowrap 

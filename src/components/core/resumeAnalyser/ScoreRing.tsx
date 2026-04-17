@@ -9,11 +9,10 @@ export function ScoreRing({
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (score / 100) * circumference;
 
-  // Score ke Isabh se 
-  let ringColor = "#ef4444"; // red for bad
-  if (score >= 70)
-    ringColor = "#A855F7"; // purple for good
-  else if (score >= 45) ringColor = "#f59e0b"; // yellow for okay
+  // Color based on score
+  let ringColor = "#ef4444"; // red
+  if (score >= 70) ringColor = "#a855f7"; // purple
+  else if (score >= 45) ringColor = "#f59e0b"; // amber
 
   const centerX = size / 2;
   const centerY = size / 2;
@@ -26,10 +25,11 @@ export function ScoreRing({
         cy={centerY}
         r={radius}
         fill="none"
-        stroke="#2a2a2a"
+        className="stroke-slate-200 dark:stroke-white/10"
         strokeWidth="8"
       />
-      {/* Colored progress ring */}
+
+      {/* Progress ring */}
       <circle
         cx={centerX}
         cy={centerY}
@@ -43,24 +43,26 @@ export function ScoreRing({
         transform={`rotate(-90 ${centerX} ${centerY})`}
         style={{ transition: "stroke-dashoffset 1s ease" }}
       />
-      {/* Score number */}
+
+      {/* Score */}
       <text
         x={centerX}
         y={centerY - 4}
         textAnchor="middle"
         fontSize={size * 0.2}
         fontWeight="600"
-        fill="white"
+        className="fill-slate-800 dark:fill-white"
       >
         {score}
       </text>
-      {/* "match %" label */}
+
+      {/* Label */}
       <text
         x={centerX}
         y={centerY + size * 0.13}
         textAnchor="middle"
         fontSize={size * 0.09}
-        fill="#666"
+        className="fill-slate-500 dark:fill-slate-400"
       >
         match %
       </text>

@@ -8,7 +8,7 @@ import {
   SectionLabel,
 } from "../components/core/resumeAnalyser/ResumeUi";
 import { UploadView } from "../components/core/resumeAnalyser/UploadView";
-// API CLASS
+
 const resumeApis = new ResumeApis();
 
 export type Analysis = {
@@ -41,7 +41,6 @@ type SessionData = {
   createdAt: string;
 };
 
-// Shows the full analysis result (score, skills, suggestions, etc.)
 function AnalysisTab({
   analysis,
   jdSummary,
@@ -49,102 +48,103 @@ function AnalysisTab({
   analysis: Analysis;
   jdSummary: string;
 }) {
-  // Determine match label based on score
   let matchLabel = "Weak match";
   if (analysis.matchScore >= 70) matchLabel = "Strong match";
   else if (analysis.matchScore >= 45) matchLabel = "Moderate match";
 
   return (
-    <div className="flex flex-col gap-4 p-5 overflow-y-auto h-full">
-      {/* Top row: score ring + JD summary */}
-      <div className="grid grid-cols-[auto_1fr] gap-4">
-        <Card className="flex flex-col items-center justify-center px-5 gap-1">
-          {/* Ek circle dikhati hai or uske andr score Chota hai lekin motaa hai */}
-          <ScoreRing score={analysis.matchScore} />
-          <p className="text-[11px] text-[#444]">{matchLabel}</p>
-        </Card>
-        <Card>
-          <SectionLabel>JD summary</SectionLabel>
-          <p className="text-sm text-[#777] leading-relaxed">{jdSummary}</p>
-        </Card>
-      </div>
+    <div className="h-full overflow-y-auto no-scrollbar bg-slate-50 p-5 dark:bg-[#0f1117]">
+      <div className="flex flex-col gap-4">
+        <div className="grid gap-4 md:grid-cols-[auto_1fr]">
+          <Card className="flex flex-col items-center justify-center gap-1 px-5">
+            <ScoreRing score={analysis.matchScore} />
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {matchLabel}
+            </p>
+          </Card>
 
-      {/* Candidate summary */}
-      <Card>
-        <SectionLabel>Candidate summary</SectionLabel>
-        <p className="text-sm text-[#777] leading-relaxed">
-          {analysis.summary}
-        </p>
-      </Card>
+          <Card>
+            <SectionLabel>JD summary</SectionLabel>
+            <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+              {jdSummary}
+            </p>
+          </Card>
+        </div>
 
-      {/* Skills found vs missing */}
-      <div className="grid grid-cols-2 gap-4">
         <Card>
-          <SectionLabel>Skills found</SectionLabel>
-          <div className="flex flex-wrap gap-1.5">
-            {analysis.skills.map((skill, index) => (
-              <Pill key={index} label={skill} variant="success" />
+          <SectionLabel>Candidate summary</SectionLabel>
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            {analysis.summary}
+          </p>
+        </Card>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <SectionLabel>Skills found</SectionLabel>
+            <div className="flex flex-wrap gap-1.5">
+              {analysis.skills.map((skill, index) => (
+                <Pill key={index} label={skill} variant="success" />
+              ))}
+            </div>
+          </Card>
+
+          <Card>
+            <SectionLabel>Missing skills</SectionLabel>
+            {analysis.missingSkills.length === 0 ? (
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                None — great match!
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {analysis.missingSkills.map((skill, index) => (
+                  <Pill key={index} label={skill} variant="danger" />
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <Card>
+          <SectionLabel>Experience</SectionLabel>
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            {analysis.experience}
+          </p>
+        </Card>
+
+        <Card>
+          <SectionLabel>Projects</SectionLabel>
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            {analysis.projects}
+          </p>
+        </Card>
+
+        <Card>
+          <SectionLabel>Education</SectionLabel>
+          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            {analysis.education}
+          </p>
+        </Card>
+
+        <Card>
+          <SectionLabel>Suggestions</SectionLabel>
+          <div className="flex flex-col gap-3">
+            {analysis.suggestions.map((suggestion, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <span className="mt-0.5 shrink-0 rounded-full border border-purple-200 bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/15 dark:text-purple-300">
+                  {index + 1}
+                </span>
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  {suggestion}
+                </p>
+              </div>
             ))}
           </div>
         </Card>
-
-        <Card>
-          <SectionLabel>Missing skills</SectionLabel>
-          {analysis.missingSkills.length === 0 ? (
-            <p className="text-xs text-[#444]">None — great match!</p>
-          ) : (
-            <div className="flex flex-wrap gap-1.5">
-              {analysis.missingSkills.map((skill, index) => (
-                <Pill key={index} label={skill} variant="danger" />
-              ))}
-            </div>
-          )}
-        </Card>
       </div>
-
-      {/* Experience, Projects, Education */}
-      <Card>
-        <SectionLabel>Experience</SectionLabel>
-        <p className="text-sm text-[#777] leading-relaxed">
-          {analysis.experience}
-        </p>
-      </Card>
-
-      <Card>
-        <SectionLabel>Projects</SectionLabel>
-        <p className="text-sm text-[#777] leading-relaxed">
-          {analysis.projects}
-        </p>
-      </Card>
-
-      <Card>
-        <SectionLabel>Education</SectionLabel>
-        <p className="text-sm text-[#777] leading-relaxed">
-          {analysis.education}
-        </p>
-      </Card>
-
-      {/* Improvement suggestions */}
-      <Card>
-        <SectionLabel>Suggestions</SectionLabel>
-        <div className="flex flex-col gap-3">
-          {analysis.suggestions.map((suggestion, index) => (
-            <div key={index} className="flex gap-3 items-start">
-              <span className="text-[10px] font-bold text-purple-300 bg-purple-900/25 border border-purple-800/40 rounded-full px-2 py-0.5 shrink-0 mt-0.5">
-                {index + 1}
-              </span>
-              <p className="text-sm text-[#777] leading-relaxed">
-                {suggestion}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Card>
     </div>
   );
 }
 
-// A chat interface to ask questions about your resume
 function ChatTab({
   resumeId,
   initialMessages = [],
@@ -166,11 +166,8 @@ function ChatTab({
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages);
   const [inputText, setInputText] = useState<string>("");
   const [isSending, setIsSending] = useState<boolean>(false);
-
-  // Used to auto-scroll to the bottom when a new message is added
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom whenever messages change
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -179,8 +176,6 @@ function ChatTab({
     if (!inputText.trim() || isSending) return;
 
     const userMessage = inputText;
-
-    // Add user's message to the chat immediately
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setInputText("");
     setIsSending(true);
@@ -191,7 +186,6 @@ function ChatTab({
         userMessage,
       );
 
-      // Add the AI reply to the chat
       setMessages((prev) => [
         ...prev,
         {
@@ -209,7 +203,6 @@ function ChatTab({
     }
   }
 
-  // Pre-written quick prompts the user can click
   const quickPrompts = [
     "How can I improve my resume?",
     "What skills am I missing?",
@@ -218,44 +211,42 @@ function ChatTab({
   ];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Quick prompt buttons */}
-      <div className="flex flex-wrap gap-1.5 px-4 py-2.5 border-b border-[#1c1c1c]">
+    <div className="flex h-full flex-col overflow-hidden bg-slate-50/70 dark:bg-[#0f1117]">
+      <div className="flex flex-wrap gap-1.5 border-b border-slate-200 px-4 py-2.5 dark:border-white/10">
         {quickPrompts.map((prompt, index) => (
           <button
             key={index}
             onClick={() => setInputText(prompt)}
-            className="text-[11px] px-3 py-1 rounded-full border border-[#252525] text-[#555] hover:border-accent/40 hover:text-[#ccc] transition-all"
+            className="rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] text-slate-600 hover:border-purple-300 hover:text-purple-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-400 dark:hover:border-purple-500/40 dark:hover:text-slate-200"
           >
             {prompt}
           </button>
         ))}
       </div>
 
-      {/* Message list */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
         {messages.map((message, index) => {
           const isUser = message.role === "user";
+
           return (
             <div
               key={index}
-              className={`flex ${isUser ? "justify-end" : "justify-start"} items-end gap-2`}
+              className={`flex items-end gap-2 ${
+                isUser ? "justify-end" : "justify-start"
+              }`}
             >
-              {/* AI avatar icon */}
               {!isUser && (
-                <div className="w-6 h-6 rounded-full bg-custom-gradient shrink-0 flex items-center justify-center text-[8px] font-bold text-white mb-0.5">
+                <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-custom-gradient text-[8px] font-bold text-white">
                   AI
                 </div>
               )}
 
-              {/* Message bubble */}
               <div
-                className={`max-w-[75%] text-sm leading-relaxed px-4 py-2.5 rounded-2xl whitespace-pre-wrap
-                  ${
-                    isUser
-                      ? "bg-custom-gradient text-white rounded-br-sm"
-                      : "bg-[#1a1a1a] text-[#aaa] border border-[#252525] rounded-bl-sm"
-                  }`}
+                className={`max-w-[75%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  isUser
+                    ? "rounded-br-sm bg-custom-gradient text-white"
+                    : "rounded-bl-sm border border-slate-200 bg-white text-slate-700 shadow-sm dark:border-white/10 dark:bg-[#171a22] dark:text-slate-300"
+                }`}
               >
                 {message.content}
               </div>
@@ -263,17 +254,16 @@ function ChatTab({
           );
         })}
 
-        {/* Animated typing indicator */}
         {isSending && (
           <div className="flex items-end gap-2">
-            <div className="w-6 h-6 rounded-full bg-custom-gradient shrink-0 flex items-center justify-center text-[8px] font-bold text-white">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-custom-gradient text-[8px] font-bold text-white">
               AI
             </div>
-            <div className="bg-[#1a1a1a] border border-[#252525] px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1">
+            <div className="flex gap-1 rounded-2xl rounded-bl-sm border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-[#171a22]">
               {[0, 1, 2].map((dotIndex) => (
                 <div
                   key={dotIndex}
-                  className="w-1.5 h-1.5 rounded-full bg-[#555] animate-bounce"
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 dark:bg-slate-500"
                   style={{ animationDelay: `${dotIndex * 0.15}s` }}
                 />
               ))}
@@ -281,29 +271,26 @@ function ChatTab({
           </div>
         )}
 
-        {/* Invisible div to scroll to */}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input bar at the bottom */}
-      <div className="px-4 pb-4 pt-2 border-t border-[#1c1c1c]">
+      <div className="border-t border-slate-200 px-4 pt-2 dark:border-white/10">
         <div className="flex gap-2">
           <input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => {
-              // Send on Enter (but not Shift+Enter)
               if (e.key === "Enter" && !e.shiftKey) {
                 handleSendMessage();
               }
             }}
             placeholder="Ask about your resume or the job description..."
-            className="flex-1 bg-[#1a1a1a] border border-[#252525] text-[#ccc] text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-accent/40 placeholder:text-[#333] transition-colors"
+            className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 "
           />
           <button
             onClick={handleSendMessage}
             disabled={isSending || !inputText.trim()}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-custom-gradient text-white disabled:opacity-25 hover:opacity-90 active:scale-[0.98] transition-all"
+            className="rounded-xl bg-custom-gradient px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-25"
           >
             Send
           </button>
@@ -313,9 +300,7 @@ function ChatTab({
   );
 }
 
-// Shows the analysis + chat tabs for a selected resume session
 function SessionView({ session }: { session: SessionData }) {
-  // "analysis" or "chat" tab
   const [activeTab, setActiveTab] = useState<"analysis" | "chat">("analysis");
 
   const tabs = [
@@ -333,33 +318,32 @@ function SessionView({ session }: { session: SessionData }) {
   );
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-darkbg">
-      {/* Tab bar */}
-      <div className="flex items-center gap-0 px-5 border-b border-[#1c1c1c] shrink-0">
+    <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-[#10131a] pt-8">
+      <div className="flex shrink-0 items-center gap-0 border-b border-slate-200 bg-white/80 px-5 backdrop-blur-sm dark:border-white/10 dark:bg-[#10131a]/80">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
+
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-3 text-sm font-medium transition-all border-b-2 -mb-px
-                ${
-                  isActive
-                    ? "text-white border-accent"
-                    : "text-[#444] border-transparent hover:text-[#888]"
-                }`}
+              className={`-mb-px border-b-2 px-4 py-3 text-sm font-medium transition-all ${
+                isActive
+                  ? "border-purple-500 text-purple-600 dark:text-purple-300"
+                  : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
             >
               {tab.label}
             </button>
           );
         })}
 
-        {/* Spacer + date label */}
         <div className="flex-1" />
-        <span className="text-[11px] text-[#333] pr-1">{formattedDate}</span>
+        <span className="pr-1 text-[11px] text-slate-500 dark:text-slate-400">
+          {formattedDate}
+        </span>
       </div>
 
-      {/* Tab content */}
       <div className="flex-1 overflow-hidden">
         {activeTab === "analysis" ? (
           <AnalysisTab
@@ -377,7 +361,6 @@ function SessionView({ session }: { session: SessionData }) {
   );
 }
 
-// This is the main component that brings everything together
 export default function ResumeAnalyzer() {
   const [resumes, setResumes] = useState<ResumeHistoryItem[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
@@ -387,22 +370,18 @@ export default function ResumeAnalyzer() {
     "upload",
   );
 
-  // Purane Saare Resume fetch krlo shuvat me
   useEffect(() => {
     resumeApis
       .getAllResumes()
       .then((data) => {
-        setResumes(data.resumes || []);
+        setResumes(data.data.resumes || []);
       })
-      .catch(() => {
-        // silently fail — user just won't see history
-      })
+      .catch(() => {})
       .finally(() => {
         setIsHistoryLoading(false);
       });
   }, []);
 
-  // Called when a user clicks a past session in the sidebar
   async function handleSelectSession(resumeId: string) {
     setIsSessionLoading(true);
     setCurrentView("session");
@@ -420,14 +399,12 @@ export default function ResumeAnalyzer() {
 
       setActiveSession(session);
     } catch {
-      // If loading fails, go back to upload screen
       setCurrentView("upload");
     } finally {
       setIsSessionLoading(false);
     }
   }
 
-  // Called after a new resume is analyzed
   function handleAnalyzed(data: any) {
     const newSession: SessionData = {
       resumeId: data.resumeId,
@@ -440,7 +417,6 @@ export default function ResumeAnalyzer() {
     setActiveSession(newSession);
     setCurrentView("session");
 
-    // Also add it to the sidebar history
     const newHistoryItem: ResumeHistoryItem = {
       _id: data.resumeId,
       analysis: data.analysis,
@@ -450,14 +426,11 @@ export default function ResumeAnalyzer() {
     setResumes((prev) => [newHistoryItem, ...prev]);
   }
 
-  // Called when user deletes a resume from history
   async function handleDelete(resumeId: string) {
     await resumeApis.deleteResume(resumeId);
 
-    // Remove from the list
     setResumes((prev) => prev.filter((r) => r._id !== resumeId));
 
-    // If we deleted the currently open session, go back to upload
     if (activeSession?.resumeId === resumeId) {
       setActiveSession(null);
       setCurrentView("upload");
@@ -465,8 +438,7 @@ export default function ResumeAnalyzer() {
   }
 
   return (
-    <div className="flex h-screen bg-darkbg overflow-hidden">
-      {/* Sidebar */}
+    <div className="flex h-screen no-scrollbar bg-slate-50 text-slate-900 dark:bg-[#0b0d12] dark:text-slate-100">
       <HistorySidebar
         resumes={resumes}
         activeId={activeSession?.resumeId}
@@ -479,22 +451,20 @@ export default function ResumeAnalyzer() {
         loading={isHistoryLoading}
       />
 
-      {/* Main content area */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Upload screen */}
+      <main className="flex flex-1 flex-col overflow-hidden">
         {currentView === "upload" && <UploadView onAnalyzed={handleAnalyzed} />}
 
-        {/* Loading spinner while fetching a session */}
         {currentView === "session" && isSessionLoading && (
-          <div className="flex-1 flex items-center justify-center bg-darkbg">
+          <div className="flex flex-1 items-center justify-center bg-slate-50 dark:bg-[#0f1117]">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-7 h-7 border-2 border-[#2a2a2a] border-t-accent rounded-full animate-spin" />
-              <p className="text-sm text-[#444]">Loading session...</p>
+              <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-300 border-t-purple-500 dark:border-white/10 dark:border-t-purple-400" />
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Loading session...
+              </p>
             </div>
           </div>
         )}
 
-        {/* Show session if we have data and aren't loading */}
         {currentView === "session" && !isSessionLoading && activeSession && (
           <SessionView session={activeSession} />
         )}

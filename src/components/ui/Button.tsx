@@ -14,7 +14,7 @@ interface ButtonProps {
 
 const variantClasses = {
   primary:
-    "bg-purple-600 text-white hover:bg-purple-500 dark:hover:bg-purple-800",
+    "bg-purple-500 text-white hover:bg-purple-500 dark:hover:bg-purple-800",
   secondary:
     "bg-purple-100 text-purple-600 dark:bg-zinc-600 dark:hover:bg-zinc-500 dark:text-white",
 };

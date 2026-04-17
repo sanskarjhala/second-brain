@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkbg: "#090A0A", //best color its matched now...
+        darkbg: "#090A0A", //best color its matched now..
         navbg: "#1A1A1A",
         cardbg: "#1E1E1E",
         accent: "#A855F7",

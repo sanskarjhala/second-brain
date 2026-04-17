@@ -33,7 +33,7 @@ export const Sidebar = () => {
   return (
     <div>
       <div
-        className={`z-20 top-4 rounded-r-xl h-screen  border-r border-t bg-purple-50 dark:bg-[#363636] dark:border-gray-700 dark:text-white 
+        className={`z-20 top-4 rounded-r-xl h-screen  border-r border-t bg-purple-100 dark:bg-[#363636] dark:border-gray-700 dark:text-white 
              fixed left-0  transition-all duration-300 ease-linear rounded-br-sm
                              
                              ${isSidebarOpen ? "w-72 " : "w-14 md:w-16"}
@@ -148,6 +148,21 @@ export const Sidebar = () => {
                 text="Others"
                 icon={
                   <CircleEllipsis className="text-blue-400"></CircleEllipsis>
+                }
+              />
+            </li>
+            <li
+            onClick={() => {
+              navigate("/dashboard/resume")
+            }}
+            >
+              <SidebarItems
+                isActive={filter === "Others"}
+                setFilter={setFilter}
+                sidebar={isSidebarOpen}
+                text="Resume Analyser"
+                icon={
+                  <CircleEllipsis></CircleEllipsis>
                 }
               />
             </li>

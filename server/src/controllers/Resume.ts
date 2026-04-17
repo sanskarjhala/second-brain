@@ -31,7 +31,7 @@ function parseLLMJson(raw: string) {
 export const analyzeResume = async (req: Request, res: Response) => {
   try {
     const { jobDescription } = req.body;
-    console.log(req.file)
+    console.log(req.file);
     if (!req.file) {
       return res.status(400).json({ error: "Resume PDF is required." });
     }
@@ -42,12 +42,10 @@ export const analyzeResume = async (req: Request, res: Response) => {
     // ── Step 1: Extract text from PDF ─────────────────────────
     const resumeText = await extractTextFromPDF(req.file.buffer);
     if (!resumeText) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Could not extract text from PDF. Make sure it's not scanned/image-only.",
-        });
+      return res.status(400).json({
+        error:
+          "Could not extract text from PDF. Make sure it's not scanned/image-only.",
+      });
     }
 
     // ── Step 2: Summarize JD ──────────────────────────────────
@@ -81,7 +79,7 @@ ${resumeText}
     const rawAnalysis = await aiService.getLLMResponseWithRetry(analysisPrompt);
     const parsed = parseLLMJson(rawAnalysis);
     const analysis = ResumeAnalysisSchema.parse(parsed);
-    console.log("--------------------USER ID--------------" , req.userId)
+    console.log("--------------------USER ID--------------", req.userId);
     // ── Step 4: Save to DB ────────────────────────────────────
     const resumeDoc = await ResumeModel.create({
       userId: req.userId,
@@ -168,14 +166,21 @@ ANALYSIS ALREADY DONE:
 - Missing Skills: ${resume.analysis?.missingSkills?.join(", ")}
 - Suggestions: ${resume.analysis?.suggestions?.join("; ")}
 
+Rules for replying:
+1. Keep answers short and clear.
+2. Maximum 3 to 5 lines only.
+3. Use simple language.
+4. Be honest, specific and actionable.
+5. Do not give long paragraphs unless the user explicitly asks for details.
+6. If possible, use bullet points
+
 You can help the user:
 1. Answer questions about their resume
 2. Answer questions about the job description
 3. Give specific improvement suggestions
-4. Be honest, specific, and actionable in your responses.
     `.trim();
 
-    // Build conversation history for context 
+    // Build conversation history for context
     const conversationHistory = resume.messages
       .slice(-10) // last 10 messages for context window
       .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)

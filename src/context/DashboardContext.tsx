@@ -21,7 +21,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("");
   const [showResults, setShowResults] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <DashboardContext.Provider

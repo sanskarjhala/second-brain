@@ -12,7 +12,15 @@
 html.theme-transition {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
+/* Hide scrollbar but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
 
  /* Hiding default password hide or show button icons of the browsers  */
 input[type="password"]::-ms-reveal,
